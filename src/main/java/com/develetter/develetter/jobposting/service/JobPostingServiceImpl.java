@@ -49,7 +49,7 @@ public class JobPostingServiceImpl implements JobPostingService {
 //                .bodyToMono(JobSearchResDto.class)
 //                .block(); // 동기 처리
 
-        String testURL = "localhost:8080/test";
+        String testURL = "http://localhost:8080/test";
 
         return webClient.get()
                 .uri(testURL)
