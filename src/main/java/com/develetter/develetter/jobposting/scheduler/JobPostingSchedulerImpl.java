@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
-public class JobPostingSchedulerImpl implements JobPostingScheduler{
+public class JobPostingSchedulerImpl implements JobPostingScheduler {
 
     @Value("${api.saramin.baseurl}")
     private String apiURL;
@@ -28,8 +28,8 @@ public class JobPostingSchedulerImpl implements JobPostingScheduler{
     @Transactional
     public void fetchJobPostings() {
 
-        JobSearchReqDto emptyDto = new JobSearchReqDto(null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null);
-        jobPostingService.searchJobs(emptyDto);    }
+        jobPostingService.searchJobs(null); // param test -> null
+    }
 //
 //    @Scheduled(cron = "0 0 14 * * ?")
 //    @Transactional
