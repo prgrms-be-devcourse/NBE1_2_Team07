@@ -4,9 +4,7 @@ import com.develetter.develetter.mail.dto.MailDto;
 import com.develetter.develetter.mail.service.MailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/send-mail")
 @RestController
@@ -14,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MailController {
     private final MailService mailService;
 
+    @PostMapping("/send")
     public ResponseEntity sendMail(@RequestBody MailDto mailDto) {
         mailService.sendMail(mailDto, "email");
         return ResponseEntity.ok().build();

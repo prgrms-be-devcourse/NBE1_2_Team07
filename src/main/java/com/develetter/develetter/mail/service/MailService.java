@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
@@ -18,14 +19,13 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Random;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
+@Slf4j
+@Transactional(readOnly = true)
 public class MailService {
     private final JavaMailSender javaMailSender;
     private final SpringTemplateEngine templateEngine;
-
-    //private final UserService userService;
 
     public void sendMail(MailDto mailDto, String type) {
 
@@ -33,6 +33,7 @@ public class MailService {
 
         try {
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+            mimeMessageHelper.setTo(mailDto.to());
             mimeMessageHelper.setSubject(mailDto.subject()); // 메일 제목
             mimeMessageHelper.setText(setContext(todayDate(), type), true); // 메일 본문 내용, HTML 여부
             javaMailSender.send(mimeMessage);
