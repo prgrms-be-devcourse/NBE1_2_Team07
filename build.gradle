@@ -49,6 +49,10 @@ dependencies {
 	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	implementation group:'io.jsonwebtoken',name:'jjwt-api',version: '0.11.2'
+	implementation group:'io.jsonwebtoken',name:'jjwt-impl',version: '0.11.2'
+	implementation group:'io.jsonwebtoken',name:'jjwt-jackson',version: '0.11.2'
 }
 
 tasks.named('test') {
