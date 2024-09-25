@@ -50,7 +50,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             authorities.add(new SimpleGrantedAuthority(role));
 
             SecurityContext securityContext= SecurityContextHolder.createEmptyContext();
-            AbstractAuthenticationToken authenticationToken=new UsernamePasswordAuthenticationToken(userId, null, authorities);
+            AbstractAuthenticationToken authenticationToken=
+                    new UsernamePasswordAuthenticationToken(userId, null, authorities);
 
             authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 

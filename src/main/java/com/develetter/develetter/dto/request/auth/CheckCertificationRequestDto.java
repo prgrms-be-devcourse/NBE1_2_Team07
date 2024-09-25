@@ -13,5 +13,9 @@ public class CheckCertificationRequestDto {
     private String id;
 
     @Email
-    @not
+    @NotBlank
+    private String email;
+
+    @NotBlank
+    private String certificationNumber;
 }

@@ -3,7 +3,6 @@ package com.develetter.develetter.dto.response.auth;
 
 import com.develetter.develetter.common.ResponseCode;
 import com.develetter.develetter.common.ResponseMessage;
-import com.develetter.develetter.dto.request.auth.EmailCertificationRequestDto;
 import com.develetter.develetter.dto.response.ResponseDto;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
