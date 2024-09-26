@@ -33,8 +33,8 @@ public class AsyncMailService {
         try {
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
             mimeMessageHelper.setTo(email);
-            mimeMessageHelper.setSubject(gettWeekOfMonth(LocalDate.now()) +  " develetter 소식");
-            mimeMessageHelper.setText(setContext(gettWeekOfMonth(LocalDate.now())), true);
+            mimeMessageHelper.setSubject(getWeekOfMonth(LocalDate.now()) +  " develetter 뉴스레터");
+            mimeMessageHelper.setText(setContext(getWeekOfMonth(LocalDate.now())), true);
             javaMailSender.send(mimeMessage);
             log.info("Sending Mail Success");
         } catch (MessagingException e) {
@@ -44,7 +44,7 @@ public class AsyncMailService {
     }
 
     // 날짜 가져오는 메서드
-    public String gettWeekOfMonth(LocalDate localDate) {
+    public String getWeekOfMonth(LocalDate localDate) {
         // 한 주의 시작은 월요일이고, 첫 주에 4일이 포함되어있어야 첫 주 취급 (목/금/토/일)
         WeekFields weekFields = WeekFields.of(DayOfWeek.MONDAY, 4);
         int weekOfMonth = localDate.get(weekFields.weekOfMonth());
@@ -52,14 +52,14 @@ public class AsyncMailService {
         // 첫 주에 해당하지 않는 주의 경우 전 달 마지막 주차로 계산
         if (weekOfMonth == 0) {
             LocalDate lastDayOfLastMonth = localDate.with(TemporalAdjusters.firstDayOfMonth()).minusDays(1);
-            return gettWeekOfMonth(lastDayOfLastMonth);
+            return getWeekOfMonth(lastDayOfLastMonth);
         }
 
         LocalDate lastDayOfMonth = localDate.with(TemporalAdjusters.lastDayOfMonth());
         // 마지막 주차의 경우 마지막 날이 월~수 사이이면 다음달 1주차로 계산
         if (weekOfMonth == lastDayOfMonth.get(weekFields.weekOfMonth()) && lastDayOfMonth.getDayOfWeek().compareTo(DayOfWeek.THURSDAY) < 0) {
             LocalDate firstDayOfNextMonth = lastDayOfMonth.plusDays(1); // 마지막 날 + 1일 => 다음달 1일
-            return gettWeekOfMonth(firstDayOfNextMonth);
+            return getWeekOfMonth(firstDayOfNextMonth);
         }
 
         String[] koreanWeeks = {"첫", "둘", "셋", "넷", "다섯"};
