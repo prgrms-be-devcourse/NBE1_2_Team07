@@ -2,7 +2,7 @@ package com.develetter.develetter.filter;
 
 import com.develetter.develetter.provider.JwtProvider;
 import com.develetter.develetter.repository.UserRepository;
-import com.develetter.develetter.user.UserEntity;
+import com.develetter.develetter.dto.entity.UserEntity;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

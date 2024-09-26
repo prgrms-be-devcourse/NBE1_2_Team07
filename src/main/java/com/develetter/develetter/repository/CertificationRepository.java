@@ -1,6 +1,6 @@
 package com.develetter.develetter.repository;
 
-import com.develetter.develetter.user.CertificationEntity;
+import com.develetter.develetter.dto.entity.CertificationEntity;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

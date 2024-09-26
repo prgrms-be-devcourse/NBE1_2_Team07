@@ -1,4 +1,4 @@
-package com.develetter.develetter.user;
+package com.develetter.develetter.dto.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
