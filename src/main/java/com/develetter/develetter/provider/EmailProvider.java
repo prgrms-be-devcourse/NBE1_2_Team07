@@ -15,6 +15,7 @@ public class EmailProvider {
     private final String SUBJECT="[Develetter] Account Verification";
 
     public boolean sendVerificationEmail(String email,String certificationNumber) {
+
         try {
             MimeMessage message=javaMailSender.createMimeMessage();
             MimeMessageHelper messageHelper=new MimeMessageHelper(message, true);
