@@ -1,6 +1,7 @@
 package com.develetter.develetter.jobposting.service;
 
 import com.develetter.develetter.global.util.DtoUtil;
+import com.develetter.develetter.jobposting.converter.Converter;
 import com.develetter.develetter.jobposting.dto.JobSearchReqDto;
 import com.develetter.develetter.jobposting.dto.JobSearchResDto;
 import com.develetter.develetter.jobposting.entity.JobPosting;
@@ -65,7 +66,7 @@ public class JobPostingServiceImpl implements JobPostingService {
 
             // 여기서 jobs.job()을 호출하여 List<Job>에 접근
             List<JobPosting> jobPostings = jobs.job().stream()
-                    .map(JobSearchResDto.Job::toEntity)
+                    .map(Converter::toEntity)
                     .collect(Collectors.toList());
 
             jobPostingRepository.saveAll(jobPostings);  // 여러 엔티티를 한 번에 저장

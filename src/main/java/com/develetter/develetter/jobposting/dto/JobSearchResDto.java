@@ -39,46 +39,6 @@ public record JobSearchResDto(
             Integer readCnt,        // 조회수 (선택)
             Integer applyCnt        // 지원자수 (선택)
     ) {
-        // 정적 팩토리 메서드
-        public static JobPosting toEntity(Job job) {
-
-            return JobPosting.builder()
-                    .url(job.url)
-                    .active(job.active == 1)  // 1이면 true, 0이면 false
-                    .companyName(Optional.ofNullable(job.company()).map(JobSearchResDto.Company::detail).map(JobSearchResDto.Detail::name).orElse(null))
-                    .companyUrl(Optional.ofNullable(job.company()).map(JobSearchResDto.Company::detail).map(JobSearchResDto.Detail::href).orElse(null))
-                    .title(Optional.ofNullable(job.position()).map(JobSearchResDto.Position::title).orElse(null))
-                    .industryCode(Optional.ofNullable(job.position()).map(JobSearchResDto.Position::industry).map(JobSearchResDto.Industry::code).orElse(null))
-                    .industryName(Optional.ofNullable(job.position()).map(JobSearchResDto.Position::industry).map(JobSearchResDto.Industry::name).orElse(null))
-                    .locationCode(Optional.ofNullable(job.position()).map(JobSearchResDto.Position::location).map(JobSearchResDto.Location::code).orElse(null))
-                    .locationName(Optional.ofNullable(job.position()).map(JobSearchResDto.Position::location).map(JobSearchResDto.Location::name).orElse(null))
-                    .jobTypeCode(Optional.ofNullable(job.position()).map(JobSearchResDto.Position::jobType).map(JobSearchResDto.JobType::code).orElse(null))
-                    .jobTypeName(Optional.ofNullable(job.position()).map(JobSearchResDto.Position::jobType).map(JobSearchResDto.JobType::name).orElse(null))
-                    .jobMidCode(Optional.ofNullable(job.position()).map(JobSearchResDto.Position::jobMidCode).map(JobSearchResDto.JobMidCode::code).orElse(null))
-                    .jobMidName(Optional.ofNullable(job.position()).map(JobSearchResDto.Position::jobMidCode).map(JobSearchResDto.JobMidCode::name).orElse(null))
-                    .jobCode(Optional.ofNullable(job.position()).map(JobSearchResDto.Position::jobCode).map(JobSearchResDto.JobCode::code).orElse(null))
-                    .jobName(Optional.ofNullable(job.position()).map(JobSearchResDto.Position::jobCode).map(JobSearchResDto.JobCode::name).orElse(null))
-                    .experienceCode(Optional.ofNullable(job.position()).map(JobSearchResDto.Position::experienceLevel).map(JobSearchResDto.ExperienceLevel::code).orElse(null))
-                    .experienceMin(Optional.ofNullable(job.position()).map(JobSearchResDto.Position::experienceLevel).map(JobSearchResDto.ExperienceLevel::min).orElse(null))
-                    .experienceMax(Optional.ofNullable(job.position()).map(JobSearchResDto.Position::experienceLevel).map(JobSearchResDto.ExperienceLevel::max).orElse(null))
-                    .experienceName(Optional.ofNullable(job.position()).map(JobSearchResDto.Position::experienceLevel).map(JobSearchResDto.ExperienceLevel::name).orElse(null))
-                    .educationLevelCode(Optional.ofNullable(job.position()).map(JobSearchResDto.Position::requiredEducationLevel).map(JobSearchResDto.RequiredEducationLevel::code).orElse(null))
-                    .educationLevelName(Optional.ofNullable(job.position()).map(JobSearchResDto.Position::requiredEducationLevel).map(JobSearchResDto.RequiredEducationLevel::name).orElse(null))
-                    .keyword(job.keyword)
-                    .salaryCode(Optional.ofNullable(job.salary()).map(JobSearchResDto.Salary::code).orElse(null))
-                    .salaryName(Optional.ofNullable(job.salary()).map(JobSearchResDto.Salary::name).orElse(null))
-                    .postingTimestamp(job.postingTimestamp)
-                    .postingDate(OffsetDateTime.parse(job.postingDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ")).toLocalDateTime())
-                    .modificationTimestamp(job.modificationTimestamp)
-                    .openingTimestamp(job.openingTimestamp)
-                    .expirationTimestamp(job.expirationTimestamp)
-                    .expirationDate(OffsetDateTime.parse(job.expirationDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ")).toLocalDateTime())
-                    .closeTypeCode(Optional.ofNullable(job.closeType()).map(JobSearchResDto.CloseType::code).orElse(null))
-                    .closeTypeName(Optional.ofNullable(job.closeType()).map(JobSearchResDto.CloseType::name).orElse(null))
-                    .readCount(job.readCnt != null ? job.readCnt : 0)
-                    .applyCount(job.applyCnt != null ? job.applyCnt : 0)
-                    .build();
-        }
     }
 
     public record Company(
