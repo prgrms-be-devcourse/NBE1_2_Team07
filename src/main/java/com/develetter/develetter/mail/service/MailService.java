@@ -1,61 +1,49 @@
 package com.develetter.develetter.mail.service;
 
-import com.develetter.develetter.mail.dto.MailDto;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
+@EnableScheduling
 public class MailService {
-    private final JavaMailSender javaMailSender;
-    private final SpringTemplateEngine templateEngine;
+    private final AsyncMailService asyncMailService;
 
-    public void sendMail(MailDto mailDto, String type) {
-
-        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-
+    // 매분 10초마다
+    @Scheduled(cron = "10 * * * * *")
+    // 월요일 오전 9시마다
+    //@Scheduled(cron = "0 0 9 * * MON")
+    public void scheduleEmailCron(){
         try {
-            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
-            mimeMessageHelper.setTo(mailDto.to());
-            mimeMessageHelper.setSubject(mailDto.subject()); // 메일 제목
-            mimeMessageHelper.setText(setContext(todayDate(), type), true); // 메일 본문 내용, HTML 여부
-            javaMailSender.send(mimeMessage);
+//        List<Member> activeMembers = memberRepository.findMembersByProfileIsEmailActive(true);
+//
+//        for (Member member : activeMembers) {
+//            String email = member.getEmail();
+//            asyncEmailService.sendEmailNotice(email);
+//        }
 
-            log.info("Success");
+            List<String> mailList = new ArrayList<>();
+            mailList.add("dkdudab@naver.com");
+            mailList.add("dkdudab@hanmail.net");
 
-        } catch (MessagingException e) {
-            log.info("fail");
+            for (String email : mailList) {
+                asyncMailService.sendMail(email);
+            }
+
+            log.info("All Mails Sent");
+        } catch (Exception e) {
+            log.error("Scheduled Mail Sent Error");
             throw new RuntimeException(e);
         }
-    }
 
-    public String todayDate(){
-        ZonedDateTime todayDate = LocalDateTime.now(ZoneId.of("Asia/Seoul")).atZone(ZoneId.of("Asia/Seoul"));
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M월 d일");
-        return todayDate.format(formatter);
-    }
-
-    // thymeleaf를 통한 html 적용
-    public String setContext(String code, String type) {
-        Context context = new Context();
-        context.setVariable("code", code);
-        return templateEngine.process(type, context);
     }
 }

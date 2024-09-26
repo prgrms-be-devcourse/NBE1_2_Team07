@@ -10,11 +10,4 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 public class MailController {
-    private final MailService mailService;
-
-    @PostMapping("/send")
-    public ResponseEntity sendMail(@RequestBody MailDto mailDto) {
-        mailService.sendMail(mailDto, "email");
-        return ResponseEntity.ok().build();
-    }
 }
