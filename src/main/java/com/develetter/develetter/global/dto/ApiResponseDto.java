@@ -28,6 +28,12 @@ public class ApiResponseDto<T> {
         this.timeStamp = LocalDateTime.now();
     }
 
+    public ApiResponseDto(Integer status, String message) {
+        this.status = status;
+        this.message = message;
+        this.timeStamp = LocalDateTime.now();
+    }
+
     public HttpStatus getHttpStatus() {
         try{
             return HttpStatus.valueOf(status);
