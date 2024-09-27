@@ -30,6 +30,12 @@ public class Conference extends BaseEntity {
     @Column(name = "host", nullable = false)
     private String host;
 
+    @Column(name = "apply_start_date", nullable = false)
+    private LocalDate applyStartDate;
+
+    @Column(name = "apply_end_date", nullable = false)
+    private LocalDate applyEndDate;
+
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
