@@ -19,7 +19,6 @@ public class ApiConfig {
     public WebClient webClient(){
         return WebClient.builder()
                 .uriBuilderFactory(builderFactory())
-                .baseUrl("https://api.example.com")  // 여기에 baseUrl 설정
                 .build();
     }
 }
