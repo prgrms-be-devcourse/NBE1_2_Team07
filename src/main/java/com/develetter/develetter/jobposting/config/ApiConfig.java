@@ -16,7 +16,7 @@ public class ApiConfig {
     }
 
     @Bean
-    public WebClient webClient(){
+    public WebClient webClient() {
         return WebClient.builder()
                 .uriBuilderFactory(builderFactory())
                 .build();
