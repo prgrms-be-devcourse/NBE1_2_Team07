@@ -59,7 +59,7 @@ public class JobPosting extends BaseEntity {
     @Column(name = "job_mid_name", length = 255)
     private String jobMidName;
 
-    @Column(name = "job_code", length = 50)
+    @Column(name = "job_code", length = 255)
     private String jobCode;
 
     @Column(name = "job_name", length = 255)
