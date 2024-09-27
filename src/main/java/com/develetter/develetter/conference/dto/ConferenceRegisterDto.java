@@ -19,7 +19,6 @@ public record ConferenceRegisterDto(
         String host,
 
         @NotNull(message = "신청 시작 날짜는 필수입니다.")
-        @FutureOrPresent(message = "신청 시작 날짜는 현재 또는 미래여야 합니다.")
         LocalDate applyStartDate,
 
         @NotNull(message = "신청 종료 날짜는 필수입니다.")
