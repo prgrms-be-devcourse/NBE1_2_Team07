@@ -1,20 +1,20 @@
 <!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <div style="font-size:130%" th:text="${date}"> </div>
     <title>Develetter 뉴스레터</title>
 </head>
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
 <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 20px;">
     <tr>
         <td>
-            <h1 style="color: #2c3e50; text-align: center;">Develetter 뉴스레터</h1>
+            <h1 style="color: #2c3e50; text-align: center;"> 이번 주 Develetter 뉴스레터 </h1>
 
             <div style="background-color: #ffffff; padding: 20px; margin-bottom: 20px; border-radius: 5px;">
                 <h2 style="color: #3498db;">맞춤 채용 공고</h2>
-                <p> 설정하신 관심 분야를 반영하여 제공하는 채용 공고입니다.</p>
+                <p style="color: gray"> 설정하신 관심 분야를 반영하여 제공하는 채용 공고입니다.</p>
                 <ul style="padding-left: 20px;">
                     <!-- 여기에 API에서 가져온 맞춤 채용공고 데이터를 삽입하세요 -->
                     <li>{{채용공고_1}}</li>
@@ -24,7 +24,7 @@
             </div>
 
             <div style="background-color: #ffffff; padding: 20px; margin-bottom: 20px; border-radius: 5px;">
-                <h2 style="color: #2ecc71;">새로운 개발 블로그 포스트</h2>
+                <h2 style="color: #2ecc71;">새로운 기술 블로그 포스트</h2>
                 <!-- 여기에 API에서 가져온 블로그 포스트 데이터를 삽입하세요 -->
                 <h3>{{블로그_제목}}</h3>
                 <p>{{블로그_요약}}</p>
@@ -32,7 +32,7 @@
             </div>
 
             <div style="background-color: #ffffff; padding: 20px; border-radius: 5px;">
-                <h2 style="color: #e74c3c;">다가오는 레퍼런스 일정</h2>
+                <h2 style="color: #e74c3c;">이번 주 레퍼런스 일정</h2>
                 <table width="100%" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">
                     <tr style="background-color: #f8f8f8;">
                         <th style="border: 1px solid #ddd; text-align: left;">날짜</th>
