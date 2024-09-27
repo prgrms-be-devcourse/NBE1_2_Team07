@@ -1,5 +1,7 @@
 package com.develetter.develetter.mail.service;
 
+import com.develetter.develetter.conference.dto.ConferenceResDto;
+import com.develetter.develetter.conference.service.ConferenceServiceImpl;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.WeekFields;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +28,7 @@ public class AsyncMailService {
     // TODO: setQueueCapacity로 비동기로 처리 가능한 이메일 제한 필요
     private final JavaMailSender javaMailSender;
     private final SpringTemplateEngine templateEngine;
+    //private final ConferenceServiceImpl conferenceService;
 
     //메일 전송 메서드
     @Async
@@ -73,6 +77,7 @@ public class AsyncMailService {
     public String setContext(String date) {
         Context context = new Context();
         context.setVariable("date", date);
+        //context.setVariable("conferenceList", conferenceList);
         return templateEngine.process("email", context);
     }
 }

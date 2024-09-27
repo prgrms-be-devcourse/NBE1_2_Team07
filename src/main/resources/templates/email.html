@@ -10,7 +10,7 @@
 <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 20px;">
     <tr>
         <td>
-            <h1 style="color: #2c3e50; text-align: center;"> 이번 주 Develetter 뉴스레터 </h1>
+            <h1 style="color: #2c3e50; text-align: center;" th:text="|${date} Develetter 뉴스레터|" />
 
             <div style="background-color: #ffffff; padding: 20px; margin-bottom: 20px; border-radius: 5px;">
                 <h2 style="color: #3498db;">맞춤 채용 공고</h2>
@@ -32,22 +32,8 @@
             </div>
 
             <div style="background-color: #ffffff; padding: 20px; border-radius: 5px;">
-                <h2 style="color: #e74c3c;">이번 주 레퍼런스 일정</h2>
-                <table width="100%" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">
-                    <tr style="background-color: #f8f8f8;">
-                        <th style="border: 1px solid #ddd; text-align: left;">날짜</th>
-                        <th style="border: 1px solid #ddd; text-align: left;">이벤트</th>
-                    </tr>
-                    <!-- 여기에 API에서 가져온 레퍼런스 일정 데이터를 삽입하세요 -->
-                    <tr>
-                        <td style="border: 1px solid #ddd;">{{날짜_1}}</td>
-                        <td style="border: 1px solid #ddd;">{{이벤트_1}}</td>
-                    </tr>
-                    <tr>
-                        <td style="border: 1px solid #ddd;">{{날짜_2}}</td>
-                        <td style="border: 1px solid #ddd;">{{이벤트_2}}</td>
-                    </tr>
-                </table>
+                <h2 style="color: #e74c3c;">다가오는 컨퍼런스 신청 일정</h2>
+                <div th:replace="~{conferenceCalendar}"></div>
             </div>
 
             <p style="text-align: center; margin-top: 20px; color: #7f8c8d;">

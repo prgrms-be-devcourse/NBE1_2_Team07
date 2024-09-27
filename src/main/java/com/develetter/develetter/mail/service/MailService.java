@@ -1,7 +1,5 @@
 package com.develetter.develetter.mail.service;
 
-import com.develetter.develetter.mail.repository.BlogRepository;
-import com.develetter.develetter.mail.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -16,7 +14,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
-@EnableScheduling
 public class MailService {
     private final AsyncMailService asyncMailService;
     //private final UserRepository userRepository;
@@ -34,10 +31,10 @@ public class MailService {
 //            String email = user.getEmail();
           ////////////////////////////////////////
           // DB 연결 전 코드
-            String email1 = "dkdudab@hanmail.net";
+            //String email1 = "dkdudab@hanmail.net";
             String email2 = "dkdudab@naver.com";
             List<String> emails = new ArrayList<>();
-            emails.add(email1);
+            //emails.add(email1);
             emails.add(email2);
             for (String email : emails) {
             /////////////////////////////////////////
