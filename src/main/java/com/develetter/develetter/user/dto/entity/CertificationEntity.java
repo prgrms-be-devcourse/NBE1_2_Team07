@@ -12,6 +12,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity(name="certification" )
 @Table(name = "certification"  )
+/**
+ * 이메일 검증을 위한 Entity
+ */
 public class CertificationEntity {
     @Id
     private String userId;

@@ -3,7 +3,6 @@ package com.develetter.develetter.user.provider;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMailMessage;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
@@ -11,28 +10,39 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class EmailProvider {
 
-    private final JavaMailSender javaMailSender;
-    private final String SUBJECT="[Develetter] 인증 메일";
+    private final JavaMailSender javaMailSender;  // 이메일 전송을 위한 JavaMailSender 객체
+    private final String SUBJECT = "[Develetter] 인증 메일";  // 이메일 제목
 
-    public boolean sendVerificationEmail(String email,String certificationNumber) {
+    /**
+     * 인증 이메일을 전송하는 메서드.
+     * 입력된 이메일 주소로 인증 번호가 포함된 HTML 이메일을 발송.
+     * @param email               수신자의 이메일 주소
+     * @param certificationNumber 인증 번호
+     * @return 이메일 전송 성공 여부 (true: 성공, false: 실패)
+     */
+    public boolean sendVerificationEmail(String email, String certificationNumber) {
 
         try {
-            MimeMessage message=javaMailSender.createMimeMessage();
-            MimeMessageHelper messageHelper=new MimeMessageHelper(message, true);
+            // MIME 타입의 이메일 메시지 생성
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper messageHelper = new MimeMessageHelper(message, true);
 
-            String htmlContent=getCertificationMessage(certificationNumber);
+            // 인증 번호가 포함된 HTML 내용 생성
+            String htmlContent = getCertificationMessage(certificationNumber);
 
+            // 이메일 수신자, 제목 및 본문 설정
             messageHelper.setTo(email);
             messageHelper.setSubject(SUBJECT);
-            messageHelper.setText(htmlContent, true);
+            messageHelper.setText(htmlContent, true);  // HTML 형식의 본문 설정
 
+            // 이메일 전송
             javaMailSender.send(message);
 
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
-        return true;
+        return true;  // 전송 성공 시 true 리턴
     }
 
     private String getCertificationMessage(String certificationNumber) {
