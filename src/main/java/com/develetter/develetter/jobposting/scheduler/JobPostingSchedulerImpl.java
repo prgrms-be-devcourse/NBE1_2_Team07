@@ -1,5 +1,6 @@
 package com.develetter.develetter.jobposting.scheduler;
 
+import com.develetter.develetter.jobposting.dto.JobSearchResDto;
 import com.develetter.develetter.jobposting.service.JobPostingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +23,15 @@ public class JobPostingSchedulerImpl implements JobPostingScheduler {
     @Transactional
     public void fetchJobPostings() {
 
-//        jobPostingService.searchJobs(); // param test -> null
+        int startPage = 0;
+
+        while (true) {
+
+            JobSearchResDto jobSearchResDto = jobPostingService.searchJobs(startPage++);
+
+            if (jobSearchResDto.jobs().count() < 100) break;
+
+        }
     }
 
 }

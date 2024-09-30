@@ -4,6 +4,6 @@ import com.develetter.develetter.jobposting.dto.JobSearchResDto;
 
 public interface JobPostingService {
 
-    JobSearchResDto searchJobs();
+    JobSearchResDto searchJobs(int startIdx);
 
 }
