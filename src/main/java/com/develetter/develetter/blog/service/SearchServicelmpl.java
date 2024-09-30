@@ -13,6 +13,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -20,10 +21,10 @@ import java.util.List;
 public class SearchServicelmpl implements SearchService{
     private static final String DEFAULT_IMAGE_URL = "https://img.freepik.com/premium-vector/crescent-moon-shining-starry-night-sky_1334819-5377.jpg";
 
-    @Value("${custom.api.key}")
+    @Value("${API_KEY}")
     private String API_KEY;
 
-    @Value("${custom.search.engine.id}")
+    @Value("${SEARCH_ENGINE_ID}")
     private String SEARCH_ENGINE_ID;
     //최근 두달이내 작성한 글만 불러오게 설정
     private final String GOOGLE_SEARCH_URL = "https://www.googleapis.com/customsearch/v1";
@@ -58,7 +59,7 @@ public class SearchServicelmpl implements SearchService{
                         .block();
 
                 // JSON 응답을 받아서 처리
-                JSONObject jsonResponse = new JSONObject(response);
+                JSONObject jsonResponse = new JSONObject(Objects.requireNonNull(response));
                 // 검색 결과가 없으면 프로그램 종료
                 if (!jsonResponse.has("items")) {
                     System.out.println("검색결과가 없습니다.");
@@ -80,9 +81,9 @@ public class SearchServicelmpl implements SearchService{
                     String link = item.getString("link");
 
                     // 검색어 필터링: title, snippet, link에 검색어가 포함되지 않으면 건너뜀
-                    if (!title.contains(query) && !snippet.contains(query) && !link.contains(query)) {
+                    /*if (!title.contains(query) && !snippet.contains(query) && !link.contains(query)) {
                         continue;  // 검색어가 포함되지 않은 경우 해당 결과 건너뜀
-                    }
+                    }*/
 
                     // 세부 블로그 글인지 확인
                     if (BlogUtil.isBlogDetailPage(link)) {

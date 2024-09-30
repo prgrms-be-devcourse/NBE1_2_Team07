@@ -4,6 +4,8 @@ import com.develetter.develetter.blog.repository.BlogRepository;
 import com.develetter.develetter.blog.service.InterestServicelmpl;
 import com.develetter.develetter.blog.service.SearchServicelmpl;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +15,8 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class BlogSchedulerlmpl implements BlogScheduler{
+
+    private static final Logger log = LoggerFactory.getLogger(BlogSchedulerlmpl.class);
 
     private final SearchServicelmpl searchServicelmpl;
     private final BlogRepository blogRepository;
@@ -32,6 +36,6 @@ public class BlogSchedulerlmpl implements BlogScheduler{
         // 관심사 목록을 가져와서 각각의 관심사에 대해 블로그 데이터를 저장
         List<String> interests = interestServicelmpl.getInterests();
         interests.forEach(searchServicelmpl::searchAndSaveBlogPosts);  // 각 관심사별로 데이터 저장
-        System.out.println("패치된 Blog 데이터가 저장되었습니다: " + System.currentTimeMillis());
+        log.info("패치된 Blog 데이터가 저장되었습니다: {}", System.currentTimeMillis());
     }
 }
