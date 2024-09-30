@@ -25,10 +25,10 @@ public record JobSearchParams(
         Integer count,
         String sort
 ) {
-    public static JobSearchParams defaultParams() {
+    public static JobSearchParams defaultParams(int start) {
         return new JobSearchParams(
                 null, null, null, null, null, null, null, null,
                 "2", null, null, null, null, null, null, null,
-                null, null, null, null, 0, 5, null);
+                null, null, null, null, start, 100, null);
     }
 }
