@@ -25,12 +25,12 @@ public class Blog extends BaseEntity {
     @Column(name = "title")
     private String title;
 
-    @Column(name = "link")
+    @Column(name = "link", length = 1000)
     private String link;
 
     @Column(name = "snippet")
     private String snippet;
 
-    @Column(name = "image_url")
+    @Column(name = "image_url", length = 1000)
     private String imageUrl;
 }

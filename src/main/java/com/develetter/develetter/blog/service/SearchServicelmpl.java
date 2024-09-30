@@ -45,7 +45,7 @@ public class SearchServicelmpl implements SearchService{
                 String url = UriComponentsBuilder.fromHttpUrl(GOOGLE_SEARCH_URL)
                         .queryParam("key", API_KEY)
                         .queryParam("cx", SEARCH_ENGINE_ID)
-                        .queryParam("dateRestrict", "d150")
+                        .queryParam("dateRestrict", "d700")
                         .queryParam("q", query)
                         .queryParam("num", 10)
                         .queryParam("start", startIndex)  // 페이징을 위한 시작 인덱스
@@ -149,6 +149,10 @@ public class SearchServicelmpl implements SearchService{
 
     private void saveBlogData(String title, String snippet, String link, String imageUrl) {
         try {
+            if (snippet.length() > 255) {
+                snippet = snippet.substring(0, 255);
+            }
+
             // 이미지 URL이 없으면 기본 이미지 사용
             if (imageUrl == null || imageUrl.isEmpty()) {
                 imageUrl = DEFAULT_IMAGE_URL;
@@ -173,4 +177,6 @@ public class SearchServicelmpl implements SearchService{
         return blogRepository.findAll();
     }
 }
+
+
 
