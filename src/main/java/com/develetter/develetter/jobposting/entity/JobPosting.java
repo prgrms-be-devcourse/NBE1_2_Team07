@@ -47,22 +47,22 @@ public class JobPosting extends BaseEntity {
     @Column(name = "location_name", length = 255)
     private String locationName;
 
-    @Column(name = "job_type_code", length = 50)
+    @Column(name = "job_type_code", length = 255)
     private String jobTypeCode;
 
     @Column(name = "job_type_name", length = 255)
     private String jobTypeName;
 
-    @Column(name = "job_mid_code", length = 50)
+    @Column(name = "job_mid_code", length = 255)
     private String jobMidCode;
 
     @Column(name = "job_mid_name", length = 255)
     private String jobMidName;
 
-    @Column(name = "job_code", length = 255)
+    @Column(name = "job_code", columnDefinition = "TEXT")
     private String jobCode;
 
-    @Column(name = "job_name", length = 255)
+    @Column(name = "job_name", columnDefinition = "TEXT")
     private String jobName;
 
     @Column(name = "experience_code")
