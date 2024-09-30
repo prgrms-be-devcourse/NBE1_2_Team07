@@ -20,7 +20,7 @@ public class SearchController {
     private final SearchServicelmpl searchServicelmpl;
 
     @GetMapping()
-    public ApiResponseDto<String> searchAndSave(@RequestParam String query) {
+    public ApiResponseDto<Void> searchAndSave(@RequestParam String query) {
         searchServicelmpl.searchAndSaveBlogPosts(query);
         return new ApiResponseDto<>(200, "검색 데이터가 성공적으로 저장되었습니다!");
     }
