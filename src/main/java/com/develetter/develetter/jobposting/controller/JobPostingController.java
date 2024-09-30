@@ -19,10 +19,7 @@ public class JobPostingController {
 
     @GetMapping("/testCall")
     public ApiResponseDto<JobSearchResDto> callJobSearchApi() {
-        // DTO를 Service로 전달
         jobPostingSchedulerImpl.fetchJobPostings();
-
-        log.info("success");
 
         return new ApiResponseDto<>(200, "성공");
     }
