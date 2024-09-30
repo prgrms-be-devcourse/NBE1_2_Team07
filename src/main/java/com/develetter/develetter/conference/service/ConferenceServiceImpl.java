@@ -9,7 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +26,14 @@ public class ConferenceServiceImpl implements ConferenceService {
         return conferenceRepository.findAll()
                 .stream().map(Converter::toDto)
                 .toList();
+    }
+
+    @Override
+    public List<ConferenceResDto> getAllConferenceWithDateRange(LocalDate start, LocalDate end) {
+        List<Conference> conferences = conferenceRepository.findByDateRange(start, end);
+        return conferences.stream()
+                .map(Converter::toDto)
+                .collect(Collectors.toList());
     }
 
     @Transactional

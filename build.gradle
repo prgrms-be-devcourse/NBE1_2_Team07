@@ -41,6 +41,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
 	implementation 'org.json:json:20231013'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'io.github.cdimascio:dotenv-java:2.2.0'
 	implementation 'io.netty:netty-resolver-dns-native-macos:4.1.65.Final:osx-x86_64'

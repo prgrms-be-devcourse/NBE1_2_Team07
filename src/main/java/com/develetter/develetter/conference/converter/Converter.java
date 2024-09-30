@@ -11,6 +11,8 @@ public class Converter {
         return Conference.builder()
                 .name(dto.name())
                 .host(dto.host())
+                .applyStartDate(dto.applyStartDate())
+                .applyEndDate(dto.applyEndDate())
                 .startDate(dto.startDate())
                 .endDate(dto.endDate())
                 .url(dto.url())
@@ -23,6 +25,8 @@ public class Converter {
                 conference.getId(),
                 conference.getName(),
                 conference.getHost(),
+                conference.getApplyStartDate(),
+                conference.getApplyEndDate(),
                 conference.getStartDate(),
                 conference.getEndDate(),
                 conference.getUrl()
