@@ -1,4 +1,4 @@
-package com.develetter.develetter.user.dto.entity;
+package com.develetter.develetter.user.global.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;

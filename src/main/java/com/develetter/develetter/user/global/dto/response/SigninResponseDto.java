@@ -1,13 +1,14 @@
-package com.develetter.develetter.user.dto.response;
+package com.develetter.develetter.user.global.dto.response;
 
 import com.develetter.develetter.user.global.common.ResponseCode;
 import com.develetter.develetter.user.global.common.ResponseMessage;
+import com.develetter.develetter.user.global.dto.LogInResponseDto;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @Getter
-public class SigninResponseDto extends ResponseDto {
+public class SigninResponseDto extends LogInResponseDto {
     private String token;
     private int expirationTime;
 
@@ -22,8 +23,8 @@ public class SigninResponseDto extends ResponseDto {
         return ResponseEntity.status(HttpStatus.OK).body(responseBody);
     }
 
-    public static ResponseEntity<ResponseDto> signInFail(){
-        ResponseDto responseBody = new ResponseDto(ResponseCode.SIGN_IN_FAIL, ResponseMessage.SIGN_IN_FAIL);
+    public static ResponseEntity<LogInResponseDto> signInFail(){
+        LogInResponseDto responseBody = new LogInResponseDto(ResponseCode.SIGN_IN_FAIL, ResponseMessage.SIGN_IN_FAIL);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseBody);
     }
 

@@ -5,6 +5,7 @@ import com.develetter.develetter.user.handler.OAuthSuccessHandler;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.websocket.Endpoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.Bean;
@@ -69,6 +70,8 @@ public class WebSecurityConfig {
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(endpoint -> endpoint.baseUri("/api/auth/oauth2")) // OAuth2 로그인 엔드포인트 설정
                         .redirectionEndpoint(endpoint -> endpoint.baseUri("/oauth2/callback/*")) // 리디렉션 엔드포인트 설정
+//                        .authorizationEndpoint(endpoint -> endpoint.baseUri("/oauth2/authorization")) // OAuth2 로그인 URL
+//                        .redirectionEndpoint(endpoint -> endpoint.baseUri("/login/oauth2/code/*")) // 리디��션 URL
                         .userInfoEndpoint(endpoint -> endpoint.userService(oAuth2UserService)) // 사용자 정보 서비스 설정
                         .successHandler(oAuthSuccessHandler) // 성공 핸들러 설정
                 )

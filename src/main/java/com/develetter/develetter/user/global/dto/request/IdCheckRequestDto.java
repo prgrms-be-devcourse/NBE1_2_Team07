@@ -1,17 +1,13 @@
-package com.develetter.develetter.user.dto.request;
+package com.develetter.develetter.user.global.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
+@Getter @Setter
 @NoArgsConstructor
-public class DeleteIdRequestDto {
+public class IdCheckRequestDto {
     @NotBlank
     private String id;
-
-    @NotBlank
-    private String password;
 }

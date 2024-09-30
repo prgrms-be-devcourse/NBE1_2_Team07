@@ -1,4 +1,4 @@
-package com.develetter.develetter.user.dto.request;
+package com.develetter.develetter.user.global.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -8,11 +8,14 @@ import lombok.Setter;
 
 @Getter @Setter
 @NoArgsConstructor
-public class EmailCertificationRequestDto {
+public class CheckCertificationRequestDto {
     @NotBlank
     private String id;
 
     @Email
     @NotBlank
     private String email;
+
+    @NotBlank
+    private String certificationNumber;
 }

@@ -1,7 +1,8 @@
 package com.develetter.develetter.user.service;
 
-import com.develetter.develetter.user.dto.request.*;
-import com.develetter.develetter.user.dto.response.*;
+import com.develetter.develetter.user.global.dto.request.*;
+import com.develetter.develetter.user.global.dto.response.*;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 
 public interface UserService {
@@ -11,4 +12,5 @@ public interface UserService {
     ResponseEntity<? super SignupResponseDto> signUp(SignupRequestDto dto);
     ResponseEntity<? super SigninResponseDto> signIn(SigninRequestDto dto);
     ResponseEntity<? super DeleteIdResponseDto> deleteId(DeleteIdRequestDto dto);
+//    ResponseEntity<? super OAuthLoginResponseDto> oAuthLogin(OAuthLoginRequestDto dto);
 }

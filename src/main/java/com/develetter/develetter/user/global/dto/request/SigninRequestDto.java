@@ -1,4 +1,4 @@
-package com.develetter.develetter.user.dto.request;
+package com.develetter.develetter.user.global.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -7,7 +7,10 @@ import lombok.Setter;
 
 @Getter @Setter
 @NoArgsConstructor
-public class IdCheckRequestDto {
+public class SigninRequestDto {
     @NotBlank
     private String id;
+
+    @NotBlank
+    private String password;
 }

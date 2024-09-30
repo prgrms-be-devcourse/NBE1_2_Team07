@@ -1,15 +1,16 @@
 package com.develetter.develetter.user.service.implement;
 
-import com.develetter.develetter.user.dto.request.*;
-import com.develetter.develetter.user.dto.response.*;
 import com.develetter.develetter.user.global.common.CertificationNumber;
+import com.develetter.develetter.user.global.dto.LogInResponseDto;
+import com.develetter.develetter.user.global.dto.request.*;
+import com.develetter.develetter.user.global.dto.response.*;
 import com.develetter.develetter.user.provider.EmailProvider;
 import com.develetter.develetter.user.provider.JwtProvider;
 import com.develetter.develetter.user.repository.CertificationRepository;
 import com.develetter.develetter.user.repository.UserRepository;
 import com.develetter.develetter.user.service.UserService;
-import com.develetter.develetter.user.dto.entity.CertificationEntity;
-import com.develetter.develetter.user.dto.entity.UserEntity;
+import com.develetter.develetter.user.global.entity.CertificationEntity;
+import com.develetter.develetter.user.global.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -44,7 +45,7 @@ public class UserServiceImpl implements UserService {
             if (isExistId) return IdCheckResponseDto.duplicateId();  // 중복된 ID인 경우 응답
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseDto.databaseError();
+            return LogInResponseDto.databaseError();
         }
 
         return IdCheckResponseDto.success();  // 중복되지 않은 경우 성공 응답
@@ -76,7 +77,7 @@ public class UserServiceImpl implements UserService {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseDto.databaseError();
+            return LogInResponseDto.databaseError();
         }
         return EmailCertificationResponseDto.success();  // 이메일 전송 성공 응답
     }
@@ -103,7 +104,7 @@ public class UserServiceImpl implements UserService {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseDto.databaseError();
+            return LogInResponseDto.databaseError();
         }
 
         return CheckCertificationResponseDto.success();  // 인증 성공 응답
@@ -143,7 +144,7 @@ public class UserServiceImpl implements UserService {
             certificationRepository.deleteByUserId(userId);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseDto.databaseError();
+            return LogInResponseDto.databaseError();
         }
         return SignupResponseDto.success();  // 회원 가입 성공 응답
     }
@@ -177,6 +178,38 @@ public class UserServiceImpl implements UserService {
         }
         return SigninResponseDto.success(token);  // 로그인 성공 및 토큰 반환
     }
+
+//    @Override
+//    public ResponseEntity<? super OAuthLoginResponseDto> oAuthLogin(OAuthLoginRequestDto dto) {
+//        try {
+//            String provider = dto.getProvider();
+//            String accessToken = dto.getAccessToken();
+//
+//            // 실제 OAuth2 인증 로직 처리 (카카오 또는 네이버 API와 통신하여 사용자 정보 확인)
+//            String userId = verifyOAuth2AccessToken(provider, accessToken);
+//
+//            // 사용자 정보가 없을 경우 회원가입 처리
+//            UserEntity userEntity = userRepository.findByUserId(userId);
+//            if (userEntity == null) {
+//                // 새로운 사용자 회원가입 처리 (사용자 정보를 가져와 UserEntity 생성)
+//                String email = getEmailFromOAuthProvider(provider, accessToken); // OAuth 제공자에서 이메일 정보 추출
+//                userEntity = new UserEntity(userId, email, provider);
+//                userRepository.save(userEntity);
+//            }
+//
+//            // JWT 토큰 생성
+//            String token = jwtProvider.create(userId);
+//
+//            // 성공 응답 반환
+//            OAuthLoginResponseDto responseDto = new OAuthLoginResponseDto(token, "OAuth login successful");
+//            return ResponseEntity.ok(responseDto);
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return OAuthLoginResponseDto.fail();  // 실패 응답 처리
+//        }
+//    }
+
 
     /**
      * 사용자 계정 삭제 처리 메서드.

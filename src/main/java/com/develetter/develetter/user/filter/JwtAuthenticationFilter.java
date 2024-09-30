@@ -1,6 +1,6 @@
 package com.develetter.develetter.user.filter;
 
-import com.develetter.develetter.user.dto.entity.UserEntity;
+import com.develetter.develetter.user.global.entity.UserEntity;
 import com.develetter.develetter.user.provider.JwtProvider;
 import com.develetter.develetter.user.repository.UserRepository;
 import jakarta.servlet.FilterChain;

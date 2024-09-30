@@ -1,8 +1,8 @@
 package com.develetter.develetter.user.service.implement;
 
-import com.develetter.develetter.user.dto.entity.CustomOAuthUser;
+import com.develetter.develetter.user.global.entity.CustomOAuthUser;
 import com.develetter.develetter.user.repository.UserRepository;
-import com.develetter.develetter.user.dto.entity.UserEntity;
+import com.develetter.develetter.user.global.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -55,6 +55,14 @@ public class OAuthUserServiceImpl extends DefaultOAuth2UserService {
             userId = "naver_" + responseMap.get("id").substring(0, 14);  // 네이버 사용자의 ID 설정
             email = responseMap.get("email");  // 네이버 사용자의 이메일 추출
             userEntity = new UserEntity(userId, email, "naver");  // 사용자 엔티티 생성
+        }
+
+
+        if(oauthClientName.equals("google")) {
+            Map<String, Object> attributes = (Map<String, Object>) oAuth2User.getAttributes();
+            userId = attributes.get("sub").toString();
+            email = attributes.get("email").toString();
+            userEntity = new UserEntity(userId, email, "google");  // 사용자 ��티티 생성
         }
 
         // 사용자 정보 저장

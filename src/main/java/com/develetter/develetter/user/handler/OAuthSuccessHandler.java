@@ -1,6 +1,6 @@
 package com.develetter.develetter.user.handler;
 
-import com.develetter.develetter.user.dto.entity.CustomOAuthUser;
+import com.develetter.develetter.user.global.entity.CustomOAuthUser;
 import com.develetter.develetter.user.provider.JwtProvider;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,4 +40,13 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
         // 인증 성공 후 클라이언트로 토큰을 전달할 수 있는 로직 추가 (리다이렉트)
     }
+//    @Override
+//    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+//        String userId = authentication.getName();
+//        String token = jwtProvider.create(userId);
+//
+//        // oauth2Success 엔드포인트로 리다이렉트하면서 토큰 전달
+//        String redirectUrl = "/api/auth/oauth2/success?token=" + token;
+//        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
+//    }
 }

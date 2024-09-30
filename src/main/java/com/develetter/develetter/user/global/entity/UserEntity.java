@@ -1,6 +1,6 @@
-package com.develetter.develetter.user.dto.entity;
+package com.develetter.develetter.user.global.entity;
 
-import com.develetter.develetter.user.dto.request.SignupRequestDto;
+import com.develetter.develetter.user.global.dto.request.SignupRequestDto;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
