@@ -2,8 +2,8 @@ package com.develetter.develetter.blog.controller;
 
 import com.develetter.develetter.blog.entity.Blog;
 import com.develetter.develetter.blog.service.InterestServicelmpl;
-import com.develetter.develetter.global.dto.ApiResponseDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller //타임리프 테스트 위해서 컨트롤러로 해둠
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping("/interest")
 public class InterestController {
 
@@ -26,12 +27,14 @@ public class InterestController {
 
     @PostMapping("/send-email")
     public String sendEmail(@RequestParam String searchQuery, Model model) {
-        ApiResponseDto<Blog> response = interestServicelmpl.getRandomBlogBySearchQuery(searchQuery);
+        Blog blog = interestServicelmpl.getRandomBlogBySearchQuery(searchQuery);
 
-        if (response.getStatus() == 200) {
-            model.addAttribute("blog", response.getData());
+        if (blog != null) {
+            model.addAttribute("blog", blog);
+            log.info("블로그 글이 성공적으로 이메일로 전송되었습니다.");
         } else {
-            model.addAttribute("errorMessage", response.getMessage());
+            model.addAttribute("errorMessage", "해당 관심사에 맞는 블로그 글이 없습니다.");
+            log.warn("블로그 글을 찾을 수 없습니다.");
         }
 
         return "interest";

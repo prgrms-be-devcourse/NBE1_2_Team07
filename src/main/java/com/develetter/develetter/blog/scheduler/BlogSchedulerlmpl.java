@@ -4,19 +4,17 @@ import com.develetter.develetter.blog.repository.BlogRepository;
 import com.develetter.develetter.blog.service.InterestServicelmpl;
 import com.develetter.develetter.blog.service.SearchServicelmpl;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class BlogSchedulerlmpl implements BlogScheduler{
-
-    private static final Logger log = LoggerFactory.getLogger(BlogSchedulerlmpl.class);
 
     private final SearchServicelmpl searchServicelmpl;
     private final BlogRepository blogRepository;
@@ -26,7 +24,7 @@ public class BlogSchedulerlmpl implements BlogScheduler{
     //@Scheduled(cron = "0 0 0 * * MON")
     //@Scheduled(cron = "0 * * * * *")
     //@Scheduled(cron = "*/10 * * * * *")
-    @Scheduled(fixedRate = 9000)  // 5초마다 실행
+    @Scheduled(fixedRate = 20000)
     @Transactional
     public void fetchAndStoreBlogData() {
         // 블로그 테이블 초기화 (모든 데이터 삭제)

@@ -35,7 +35,7 @@ public class SearchServicelmpl implements SearchService{
     public void searchAndSaveBlogPosts(String query) {
         int startIndex = 1;  // 검색 결과의 시작 인덱스 (페이징 처리 위해서 사용)
         int savedCount = 0;  // 저장된 블로그 글 개수
-        int requiredCount = 10;  // 최소한 저장해야 할 세부 글 개수
+        int requiredCount = 30;  // 최소한 저장해야 할 세부 글 개수
         boolean hasMoreResults = true;
 
         try {
@@ -45,7 +45,7 @@ public class SearchServicelmpl implements SearchService{
                 String url = UriComponentsBuilder.fromHttpUrl(GOOGLE_SEARCH_URL)
                         .queryParam("key", API_KEY)
                         .queryParam("cx", SEARCH_ENGINE_ID)
-                        .queryParam("dateRestrict", "d90")
+                        .queryParam("dateRestrict", "d150")
                         .queryParam("q", query)
                         .queryParam("num", 10)
                         .queryParam("start", startIndex)  // 페이징을 위한 시작 인덱스
@@ -62,7 +62,7 @@ public class SearchServicelmpl implements SearchService{
                 JSONObject jsonResponse = new JSONObject(Objects.requireNonNull(response));
                 // 검색 결과가 없으면 프로그램 종료
                 if (!jsonResponse.has("items")) {
-                    System.out.println("검색결과가 없습니다.");
+                    log.info("검색 결과가 없습니다.");
                     return;
                 }
                 JSONArray items = jsonResponse.getJSONArray("items");
@@ -81,9 +81,9 @@ public class SearchServicelmpl implements SearchService{
                     String link = item.getString("link");
 
                     // 검색어 필터링: title, snippet, link에 검색어가 포함되지 않으면 건너뜀
-                    /*if (!title.contains(query) && !snippet.contains(query) && !link.contains(query)) {
+                    if (!title.contains(query) && !snippet.contains(query) && !link.contains(query)) {
                         continue;  // 검색어가 포함되지 않은 경우 해당 결과 건너뜀
-                    }*/
+                    }
 
                     // 세부 블로그 글인지 확인
                     if (BlogUtil.isBlogDetailPage(link)) {
@@ -165,7 +165,6 @@ public class SearchServicelmpl implements SearchService{
             blogRepository.save(blog);
 
         } catch (Exception e) {
-            System.out.println("Blog 저장 실패 " + title);
             log.error("Error during saveBlogData", e);
         }
     }

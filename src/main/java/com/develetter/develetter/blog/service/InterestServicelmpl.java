@@ -2,8 +2,8 @@ package com.develetter.develetter.blog.service;
 
 import com.develetter.develetter.blog.entity.Blog;
 import com.develetter.develetter.blog.repository.BlogRepository;
-import com.develetter.develetter.global.dto.ApiResponseDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,6 +11,7 @@ import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class InterestServicelmpl {
 
     private final BlogRepository blogRepository;
@@ -20,15 +21,16 @@ public class InterestServicelmpl {
     }
 
     // 사용자가 선택한 관심사 기반으로 랜덤 블로그 글을 반환
-    public ApiResponseDto<Blog> getRandomBlogBySearchQuery(String searchQuery) {
+    public Blog getRandomBlogBySearchQuery(String searchQuery) {
         List<Blog> blogs = blogRepository.findBlogsBySearchQuery(searchQuery);
 
         if (blogs.isEmpty()) {
-            return new ApiResponseDto<>(404, "해당 관심사에 맞는 블로그 글이 없습니다.");
+            log.info("해당 관심사에 맞는 블로그 글이 없습니다.");
         }
 
         // 여러 결과 중 하나를 랜덤으로 선택
         Blog randomBlog = blogs.get(new Random().nextInt(blogs.size()));
-        return new ApiResponseDto<>(200, "블로그 글이 성공적으로 반환되었습니다.", randomBlog);
+        log.info("블로그 글이 성공적으로 반환되었습니다.");
+        return randomBlog;
     }
 }
