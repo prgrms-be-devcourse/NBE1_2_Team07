@@ -26,9 +26,6 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 @Slf4j
 public class JobPostingServiceImpl implements JobPostingService {
 
-    private static final int START_INDEX = 0;
-    private static final int END_INDEX = 0;
-
     @Value("${api.saramin.accesskey}")
     private String accessKey;
 
@@ -39,15 +36,15 @@ public class JobPostingServiceImpl implements JobPostingService {
     private final JobPostingRepository jobPostingRepository;
 
     @Override
-    public JobSearchResDto searchJobs() {
+    public JobSearchResDto searchJobs(int startPage) {
         try {
-            Map<String, Object> params = DtoUtil.toMap(JobSearchParams.defaultParams());
+            Map<String, Object> params = DtoUtil.toMap(JobSearchParams.defaultParams(startPage));
 
             JobSearchResDto jobSearchResDto = webClient.get()
                     .uri(uriBuilder -> {
                         uriBuilder
                                 .scheme("https")  // 스키마 설정
-                                .host("oapi.saramin.co.kr")  // 호스트 설정
+                                .host(baseUrl)  // 호스트 설정
                                 .path("/job-search")  // 경로 설정
                                 .queryParam("access-key", accessKey);  // 쿼리 파라미터 추가
                         params.forEach((key, value) -> {
