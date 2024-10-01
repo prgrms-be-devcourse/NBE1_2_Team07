@@ -14,11 +14,6 @@ public class DeleteIdResponseDto extends LogInResponseDto {
         super();
     }
 
-    public static ResponseEntity<DeleteIdResponseDto> success(){
-        DeleteIdResponseDto responseBody = new DeleteIdResponseDto();
-        return ResponseEntity.status(HttpStatus.OK).body(responseBody);
-    }
-
     public static ResponseEntity<LogInResponseDto> idNotFound(){
         LogInResponseDto responseBody = new LogInResponseDto(ResponseCode.ID_NOT_FOUND, ResponseMessage.ID_NOT_FOUND);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);

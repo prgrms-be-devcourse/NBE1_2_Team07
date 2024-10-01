@@ -1,6 +1,6 @@
 package com.develetter.develetter.user.service.implement;
 
-import com.develetter.develetter.user.global.common.CertificationNumber;
+import com.develetter.develetter.user.global.common.Role;
 import com.develetter.develetter.user.global.dto.LogInResponseDto;
 import com.develetter.develetter.user.global.dto.request.*;
 import com.develetter.develetter.user.global.dto.response.*;
@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService {
             if (isExistId) return EmailCertificationResponseDto.duplicateId();
 
             // 인증 번호 생성 및 이메일 전송
-            String certificationNumber = CertificationNumber.getCertificationNumber();
+            String certificationNumber = getCertificationNumber();
             boolean isSendSuccess = emailProvider.sendVerificationEmail(email, certificationNumber);
             if (!isSendSuccess) return EmailCertificationResponseDto.mailSendFail();
 
@@ -136,10 +136,20 @@ public class UserServiceImpl implements UserService {
             String encodedPassword = passwordEncoder.encode(password);
             dto.setPassword(encodedPassword);
 
-            // 사용자 엔티티 저장
-            UserEntity userEntity = new UserEntity(dto);
-            userRepository.save(userEntity);
+            String role= dto.getRole();
 
+            //유저 확인
+            if(!role.equals(Role.USER) && !role.equals(Role.ADMIN))
+                return SignupResponseDto.wrongRole();
+
+            if(role.equals(Role.USER)) {
+                UserEntity userEntity = new UserEntity(userId, encodedPassword, email, "app", Role.USER);
+                userRepository.save(userEntity);
+            }
+            else if(role.equals(Role.ADMIN)) {
+                UserEntity userEntity = new UserEntity(userId, encodedPassword, email, "app", Role.ADMIN);
+                userRepository.save(userEntity);
+            }
             // 인증 엔티티 삭제(계속 남겨둘수도있음)
             certificationRepository.deleteByUserId(userId);
         } catch (Exception e) {
@@ -157,6 +167,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<? super SigninResponseDto> signIn(SigninRequestDto dto) {
         String token = null;
+        String role="ROLE_ANONYMOUS";
 
         try {
             String userId = dto.getId();
@@ -166,17 +177,20 @@ public class UserServiceImpl implements UserService {
             // 비밀번호 일치 확인
             String password = dto.getPassword();
             String encodedPassword = userEntity.getPassword();
+            role=userEntity.getRole();
             boolean isMatched = passwordEncoder.matches(password, encodedPassword);
             if (!isMatched) return SigninResponseDto.signInFail();  // 비밀번호 불일치
 
             // JWT 토큰 생성
-            token = jwtProvider.create(userId);
+            token = jwtProvider.create(userId,role);
 
+            role=userRepository.findByUserId(userId).getRole();
+
+            return SigninResponseDto.success(token,role);  // 로그인 성공 및 토큰 반환
         } catch (Exception e) {
             e.printStackTrace();
             return SigninResponseDto.signInFail();
         }
-        return SigninResponseDto.success(token);  // 로그인 성공 및 토큰 반환
     }
 
 //    @Override
@@ -238,5 +252,14 @@ public class UserServiceImpl implements UserService {
             return DeleteIdResponseDto.databaseError();  // 데이터베이스 오류 처리
         }
         return DeleteIdResponseDto.success();  // 삭제 성공 응답
+    }
+
+    private String getCertificationNumber() {
+        String certificationNumber = "";
+
+        for (int count = 0; count < 4; count++)
+            certificationNumber += (int) (Math.random() * 10);
+
+        return certificationNumber;
     }
 }

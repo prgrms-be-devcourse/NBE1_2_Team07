@@ -20,20 +20,4 @@ public class UserEntity {
     private String email;
     private String type;
     private String role;
-
-    public UserEntity(SignupRequestDto dto) {
-        this.userId = dto.getId();
-        this.password = dto.getPassword();
-        this.email = dto.getEmail();
-        this.type = "app";
-        this.role = "ROLE_USER";
-    }
-
-    public UserEntity(String userId, String email, String type) {
-        this.userId = userId;
-        this.password="passw0rd";
-        this.email = email;
-        this.type = type;
-        this.role = "ROLE_USER";
-    }
 }

@@ -15,10 +15,6 @@ public class EmailCertificationResponseDto extends LogInResponseDto {
         super();
     }
 
-    public static ResponseEntity<EmailCertificationResponseDto> success(){
-        EmailCertificationResponseDto responseBody = new EmailCertificationResponseDto();
-        return ResponseEntity.status(HttpStatus.OK).body(responseBody);
-    }
 
     public static ResponseEntity<LogInResponseDto> duplicateId(){
         LogInResponseDto responseBody = new LogInResponseDto(ResponseCode.DUPLICATE_ID, ResponseMessage.DUPLICATE_ID);

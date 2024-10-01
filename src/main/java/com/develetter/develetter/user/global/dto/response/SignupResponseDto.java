@@ -9,13 +9,12 @@ import org.springframework.http.ResponseEntity;
 
 @Getter
 public class SignupResponseDto extends LogInResponseDto {
-    private SignupResponseDto() {
-        super();
-    }
 
-    public static ResponseEntity<SignupResponseDto> success(){
-        SignupResponseDto responseBody=new SignupResponseDto();
-        return ResponseEntity.status(HttpStatus.OK).body(responseBody);
+    private String role;
+
+    private SignupResponseDto(String role) {
+        super();
+        this.role = role;
     }
 
     public static ResponseEntity<LogInResponseDto> duplicateId(){
@@ -28,5 +27,9 @@ public class SignupResponseDto extends LogInResponseDto {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseBody);
     }
 
+    public static ResponseEntity<LogInResponseDto> wrongRole() {
+        LogInResponseDto responseBody = new LogInResponseDto(ResponseCode.WRONG_ROLE, ResponseMessage.WRONG_ROLE);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseBody);
+    }
 
 }

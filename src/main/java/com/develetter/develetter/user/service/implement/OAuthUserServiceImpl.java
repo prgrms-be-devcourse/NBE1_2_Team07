@@ -40,21 +40,20 @@ public class OAuthUserServiceImpl extends DefaultOAuth2UserService {
         // 사용자 엔티티 및 ID 변수 선언
         UserEntity userEntity = null;
         String userId = null;
+        String password = "Pa33w0rD";  // 기본 비밀번호
         String email = "email@email.com";  // 기본 이메일 (OAuth 제공자에서 이메일 제공하지 않을 경우 대비)
 
         // 카카오 OAuth 처리
         if (oauthClientName.equals("kakao")) {
             userId = "kakao_" + oAuth2User.getAttributes().get("id");  // 카카오 사용자의 ID 설정
-            userEntity = new UserEntity(userId, email, "kakao");  // 사용자 엔티티 생성
+            userEntity = new UserEntity(userId, password, email, "kakao", "ROLE_USER");  // 사용자 엔티티 생성
         }
 
         // 네이버 OAuth 처리
         if (oauthClientName.equals("naver")) {
-            // 네이버 응답 속성에서 사용자 정보 추출
             Map<String, String> responseMap = (Map<String, String>) oAuth2User.getAttributes().get("response");
-            userId = "naver_" + responseMap.get("id").substring(0, 14);  // 네이버 사용자의 ID 설정
-            email = responseMap.get("email");  // 네이버 사용자의 이메일 추출
-            userEntity = new UserEntity(userId, email, "naver");  // 사용자 엔티티 생성
+            userId = "naver_" + responseMap.get("id").substring(0,32);
+            userEntity = new UserEntity(userId, password, email, "naver", "ROLE_USER");
         }
 
 
@@ -62,7 +61,6 @@ public class OAuthUserServiceImpl extends DefaultOAuth2UserService {
             Map<String, Object> attributes = (Map<String, Object>) oAuth2User.getAttributes();
             userId = attributes.get("sub").toString();
             email = attributes.get("email").toString();
-            userEntity = new UserEntity(userId, email, "google");  // 사용자 ��티티 생성
         }
 
         // 사용자 정보 저장

@@ -29,7 +29,7 @@ public class JwtProvider {
      * @param userId 사용자 ID
      * @return 생성된 JWT 토큰 문자열
      */
-    public String create(String userId) {
+    public String create(String userId, String role) {
         // 토큰 만료 시간 설정 (1시간 후)(시간늘림 가능)
         Date expireDate = Date.from(Instant.now().plus(1, ChronoUnit.HOURS));
 
@@ -40,6 +40,7 @@ public class JwtProvider {
         String jwt = Jwts.builder()
                 .signWith(key, SignatureAlgorithm.HS256)  // 서명 알고리즘 및 키 설정
                 .setSubject(userId)  // 사용자 ID를 서브젝트로 설정
+                .claim("role", role)
                 .setIssuedAt(new Date())  // 토큰 발행 시간 설정
                 .setExpiration(expireDate)  // 토큰 만료 시간 설정
                 .compact();  // 토큰 생성 및 압축

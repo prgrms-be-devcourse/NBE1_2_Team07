@@ -4,6 +4,7 @@ import com.develetter.develetter.user.global.common.ResponseCode;
 import com.develetter.develetter.user.global.common.ResponseMessage;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @Getter
@@ -15,6 +16,11 @@ public class LogInResponseDto {
     public LogInResponseDto() {
         this.code = ResponseCode.SUCCESS;
         this.message = ResponseMessage.SUCCESS;
+    }
+
+    public static ResponseEntity<LogInResponseDto> success() {
+        LogInResponseDto responseBody = new LogInResponseDto();
+        return ResponseEntity.status(HttpStatus.OK).body(responseBody);
     }
 
     public static ResponseEntity<LogInResponseDto> databaseError(){

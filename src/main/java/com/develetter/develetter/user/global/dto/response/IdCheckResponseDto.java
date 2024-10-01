@@ -14,11 +14,6 @@ public class IdCheckResponseDto extends LogInResponseDto {
         super();
     }
 
-    public static ResponseEntity<IdCheckResponseDto> success() {
-        IdCheckResponseDto responseBody = new IdCheckResponseDto();
-        return ResponseEntity.status(HttpStatus.OK).body(responseBody);
-    }
-
     public static ResponseEntity<LogInResponseDto> duplicateId() {
         LogInResponseDto responseBody=new LogInResponseDto(ResponseCode.DUPLICATE_ID, ResponseMessage.DUPLICATE_ID);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseBody);

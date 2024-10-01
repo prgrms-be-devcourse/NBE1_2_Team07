@@ -13,10 +13,6 @@ public class CheckCertificationResponseDto extends LogInResponseDto {
         super();
     }
 
-    public static ResponseEntity<CheckCertificationResponseDto> success(){
-        CheckCertificationResponseDto responseBody=new CheckCertificationResponseDto();
-        return ResponseEntity.status(HttpStatus.OK).body(responseBody);
-    }
 
     public static ResponseEntity<LogInResponseDto> certificationFail() {
         LogInResponseDto responseBody = new LogInResponseDto(ResponseCode.CERTIFICATION_FAIL, ResponseMessage.CERTIFICATION_FAIL);

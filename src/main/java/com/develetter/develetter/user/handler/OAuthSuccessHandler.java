@@ -36,7 +36,7 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
         // 사용자 ID를 바탕으로 JWT 토큰 생성
         String userId = oAuth2User.getName();
-        String token = jwtProvider.create(userId);
+        String token = jwtProvider.create(userId, "ROLE_USER");
 
         // 인증 성공 후 클라이언트로 토큰을 전달할 수 있는 로직 추가 (리다이렉트)
     }
