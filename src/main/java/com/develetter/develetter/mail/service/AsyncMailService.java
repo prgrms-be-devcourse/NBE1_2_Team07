@@ -43,9 +43,27 @@ public class AsyncMailService {
             log.info("Sending Mail Success");
         } catch (MessagingException e) {
             log.error("Sending Mail Failed");
-            throw new RuntimeException(e);
+            //발송 실패 메일 5분 후 재전송
+            //sendFailMail(email);
         }
     }
+
+//    //발송 실패 메일 재전송 메서드
+//    private void sendFailMail(String email) {
+//        try {
+//            Thread.sleep(300000);
+//
+//            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+//            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+//            mimeMessageHelper.setTo(email);
+//            mimeMessageHelper.setSubject(getWeekOfMonth(LocalDate.now()) +  " develetter 뉴스레터");
+//            mimeMessageHelper.setText(setContext(getWeekOfMonth(LocalDate.now())), true);
+//            javaMailSender.send(mimeMessage);
+//            log.info("Finally Sending Mail Success");
+//        } catch (Exception e) {
+//            log.error("Finally Sending Mail Failed");
+//        }
+//    }
 
     // 날짜 가져오는 메서드
     public String getWeekOfMonth(LocalDate localDate) {

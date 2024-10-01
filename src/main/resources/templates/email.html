@@ -4,13 +4,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Develetter 뉴스레터</title>
+    <title>develetter 뉴스레터</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.8.0/main.min.css' rel='stylesheet' />
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.8.0/main.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.8.0/locales-all.min.js'></script>
+    <style>
+        html, body {
+            overflow: hidden;
+            font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        .fc-header-toolbar {
+            padding-top: 1em;
+            padding-left: 1em;
+            padding-right: 1em;
+        }
+    </style>
 </head>
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
 <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 20px;">
     <tr>
         <td>
-            <h1 style="color: #2c3e50; text-align: center;" th:text="|${date} Develetter 뉴스레터|" />
+            <h1 style="color: #2c3e50; text-align: center;" th:text="|${date} develetter 뉴스레터|" />
 
             <div style="background-color: #ffffff; padding: 20px; margin-bottom: 20px; border-radius: 5px;">
                 <h2 style="color: #3498db;">맞춤 채용 공고</h2>
@@ -33,11 +49,11 @@
 
             <div style="background-color: #ffffff; padding: 20px; border-radius: 5px;">
                 <h2 style="color: #e74c3c;">다가오는 컨퍼런스 신청 일정</h2>
-                <div th:replace="~{conferenceCalendar}"></div>
+                <div th:replace="~{/conferenceCalendar}"></div>
             </div>
 
             <p style="text-align: center; margin-top: 20px; color: #7f8c8d;">
-                본 뉴스레터는 <a href="https://develetter.com" style="color: #3498db; text-decoration: none;">Develetter</a>에서 제공합니다.<br>
+                본 뉴스레터는 <a href="https://develetter.com" style="color: #3498db; text-decoration: none;">develetter</a>에서 제공합니다.<br>
                 구독 취소를 원하시면 <a href="{{구독취소_링크}}" style="color: #3498db; text-decoration: none;">여기</a>를 클릭하세요.
             </p>
         </td>
