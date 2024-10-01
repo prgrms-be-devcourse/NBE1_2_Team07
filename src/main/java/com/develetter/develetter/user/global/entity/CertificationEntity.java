@@ -1,8 +1,6 @@
 package com.develetter.develetter.user.global.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +15,15 @@ import lombok.NoArgsConstructor;
  */
 public class CertificationEntity {
     @Id
-    private String userId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "account_id", nullable = false, length = 30)
+    private String accountId;
+
+    @Column(nullable = false, length = 255)
     private String email;
+
+    @Column(name = "certification_number", nullable = false, length = 4)
     private String certificationNumber;
 }

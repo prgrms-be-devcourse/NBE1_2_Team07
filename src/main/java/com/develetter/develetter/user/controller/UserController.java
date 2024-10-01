@@ -63,7 +63,7 @@ public class UserController {
     @PostMapping("/sign-up")
     public ResponseEntity<? super SignupResponseDto> signUp(@RequestBody @Valid SignupRequestDto requestBody) {
         ResponseEntity<? super SignupResponseDto> response= userService.signUp(requestBody);
-        log.info("[signUp]: {id: " + requestBody.getId() + ", password: " + requestBody.getPassword() + ", email: " + requestBody.getEmail() + ", certificationNumber: " + requestBody.getCertificationNumber() + "}");
+        log.info("[signUp]: {id: " + requestBody.getId() + ", password: " + requestBody.getPassword() + ", email: " + requestBody.getEmail() + ", certificationNumber: " + requestBody.getCertificationNumber() + ", role: " + requestBody.getRole() + "}");
         return response;
     }
 

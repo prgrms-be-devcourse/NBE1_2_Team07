@@ -51,14 +51,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             // 토큰 유효성 검사 및 사용자 ID 추출
-            String userId = jwtProvider.validate(token);
-            if (userId == null) {
+            String accountId = jwtProvider.validate(token);
+            if (accountId == null) {
                 filterChain.doFilter(request, response);
                 return;
             }
 
             // 사용자 ID로 사용자 정보 조회
-            UserEntity userEntity = userRepository.findByUserId(userId);
+            UserEntity userEntity = userRepository.findByAccountId(accountId);
             String role = userEntity.getRole(); // 역할: ROLE_USER 또는 ROLE_ADMIN
 
             // 사용자 권한 설정
@@ -68,7 +68,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // 인증 객체 생성 및 SecurityContext에 설정
             SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
             AbstractAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(userId, null, authorities);
+                    new UsernamePasswordAuthenticationToken(accountId, null, authorities);
 
             // 요청의 상세 정보 설정
             authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

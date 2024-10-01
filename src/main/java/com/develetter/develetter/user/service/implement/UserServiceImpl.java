@@ -40,8 +40,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<? super IdCheckResponseDto> idCheck(IdCheckRequestDto dto) {
         try {
-            String userId = dto.getId();
-            boolean isExistId = userRepository.existsByUserId(userId);
+            String accountId = dto.getId();
+            boolean isExistId = userRepository.existsByAccountId(accountId);
             if (isExistId) return IdCheckResponseDto.duplicateId();  // 중복된 ID인 경우 응답
         } catch (Exception e) {
             e.printStackTrace();
@@ -59,11 +59,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<? super EmailCertificationResponseDto> emailCertification(EmailCertificationRequestDto dto) {
         try {
-            String userId = dto.getId();
+            String accountId = dto.getId();
             String email = dto.getEmail();
 
             // 중복된 ID인지 확인
-            boolean isExistId = userRepository.existsByUserId(userId);
+            boolean isExistId = userRepository.existsByAccountId(accountId);
             if (isExistId) return EmailCertificationResponseDto.duplicateId();
 
             // 인증 번호 생성 및 이메일 전송
@@ -72,7 +72,7 @@ public class UserServiceImpl implements UserService {
             if (!isSendSuccess) return EmailCertificationResponseDto.mailSendFail();
 
             // 인증 엔티티 저장
-            CertificationEntity certificationEntity = new CertificationEntity(userId, email, certificationNumber);
+            CertificationEntity certificationEntity = new CertificationEntity(null, accountId, email, certificationNumber);
             certificationRepository.save(certificationEntity);
 
         } catch (Exception e) {
@@ -90,12 +90,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<? super CheckCertificationResponseDto> checkCertification(CheckCertificationRequestDto dto) {
         try {
-            String userId = dto.getId();
+            String accountId = dto.getId();
             String email = dto.getEmail();
             String certificationNumber = dto.getCertificationNumber();
 
             // 인증 엔티티 조회
-            CertificationEntity certificationEntity = certificationRepository.findByUserId(userId);
+            CertificationEntity certificationEntity = certificationRepository.findByAccountId(accountId);
             if (certificationEntity == null) return CheckCertificationResponseDto.certificationFail();
 
             // 이메일 및 인증 번호가 일치하는지 확인
@@ -118,15 +118,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<? super SignupResponseDto> signUp(SignupRequestDto dto) {
         try {
-            String userId = dto.getId();
-            boolean isExistId = userRepository.existsByUserId(userId);
+            String accountId = dto.getId();
+            boolean isExistId = userRepository.existsByAccountId(accountId);
             if (isExistId) return SignupResponseDto.duplicateId();  // 중복된 ID 확인
 
             String email = dto.getEmail();
             String certificationNumber = dto.getCertificationNumber();
 
             // 인증 번호 확인
-            CertificationEntity certificationEntity = certificationRepository.findByUserId(userId);
+            CertificationEntity certificationEntity = certificationRepository.findByAccountId(accountId);
             boolean isMatched = certificationEntity.getEmail().equals(email) &&
                     certificationEntity.getCertificationNumber().equals(certificationNumber);
             if (!isMatched) return SignupResponseDto.certificationFail();
@@ -143,15 +143,15 @@ public class UserServiceImpl implements UserService {
                 return SignupResponseDto.wrongRole();
 
             if(role.equals(Role.USER)) {
-                UserEntity userEntity = new UserEntity(userId, encodedPassword, email, "app", Role.USER);
+                UserEntity userEntity = new UserEntity(null,accountId, encodedPassword, email, "app", Role.USER);
                 userRepository.save(userEntity);
             }
             else if(role.equals(Role.ADMIN)) {
-                UserEntity userEntity = new UserEntity(userId, encodedPassword, email, "app", Role.ADMIN);
+                UserEntity userEntity = new UserEntity(null,accountId, encodedPassword, email, "app", Role.ADMIN);
                 userRepository.save(userEntity);
             }
             // 인증 엔티티 삭제(계속 남겨둘수도있음)
-            certificationRepository.deleteByUserId(userId);
+            certificationRepository.deleteByAccountId(accountId);
         } catch (Exception e) {
             e.printStackTrace();
             return LogInResponseDto.databaseError();
@@ -170,8 +170,8 @@ public class UserServiceImpl implements UserService {
         String role="ROLE_ANONYMOUS";
 
         try {
-            String userId = dto.getId();
-            UserEntity userEntity = userRepository.findByUserId(userId);
+            String accountId = dto.getId();
+            UserEntity userEntity = userRepository.findByAccountId(accountId);
             if (userEntity == null) return SigninResponseDto.signInFail();  // 사용자 조회 실패
 
             // 비밀번호 일치 확인
@@ -182,9 +182,9 @@ public class UserServiceImpl implements UserService {
             if (!isMatched) return SigninResponseDto.signInFail();  // 비밀번호 불일치
 
             // JWT 토큰 생성
-            token = jwtProvider.create(userId,role);
+            token = jwtProvider.create(accountId,role);
 
-            role=userRepository.findByUserId(userId).getRole();
+            role=userRepository.findByAccountId(accountId).getRole();
 
             return SigninResponseDto.success(token,role);  // 로그인 성공 및 토큰 반환
         } catch (Exception e) {
@@ -233,8 +233,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<? super DeleteIdResponseDto> deleteId(DeleteIdRequestDto dto) {
         try {
-            String userId = dto.getId();
-            UserEntity userEntity = userRepository.findByUserId(userId);
+            String accountId = dto.getId();
+            UserEntity userEntity = userRepository.findByAccountId(accountId);
             if (userEntity == null) return DeleteIdResponseDto.idNotFound();  // 사용자 조회 실패
 
             // 비밀번호 일치 확인
@@ -245,7 +245,7 @@ public class UserServiceImpl implements UserService {
 
             // 사용자 엔티티 및 인증 엔티티 삭제
             userRepository.delete(userEntity);
-            certificationRepository.deleteByUserId(userId);
+            certificationRepository.deleteByAccountId(accountId);
 
         } catch (Exception e) {
             e.printStackTrace();
