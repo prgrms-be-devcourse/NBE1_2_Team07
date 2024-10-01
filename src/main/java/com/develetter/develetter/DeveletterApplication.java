@@ -9,7 +9,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling // 스케줄링 활성화
 @SpringBootApplication
 public class DeveletterApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(DeveletterApplication.class, args);
 	}

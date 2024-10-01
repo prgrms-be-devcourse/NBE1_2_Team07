@@ -1,13 +1,9 @@
 package com.develetter.develetter.jobposting.dto;
 
-import com.develetter.develetter.jobposting.entity.JobPosting;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 
 public record JobSearchResDto(
         Jobs jobs
