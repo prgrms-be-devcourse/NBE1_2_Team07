@@ -1,19 +1,23 @@
 package com.develetter.develetter.user.global.entity;
 
+import com.develetter.develetter.global.entity.BaseEntity;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Getter
-@NoArgsConstructor
+@SuperBuilder
+@NoArgsConstructor(access= AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Entity(name="certification" )
 @Table(name = "certification"  )
 /**
  * 이메일 검증을 위한 Entity
  */
-public class CertificationEntity {
+public class CertificationEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,7 +25,7 @@ public class CertificationEntity {
     @Column(name = "account_id", nullable = false, length = 30)
     private String accountId;
 
-    @Column(nullable = false, length = 255)
+    @Column(name = "email", nullable = false, length = 255)
     private String email;
 
     @Column(name = "certification_number", nullable = false, length = 4)
