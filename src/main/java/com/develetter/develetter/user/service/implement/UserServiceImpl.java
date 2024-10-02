@@ -4,13 +4,14 @@ import com.develetter.develetter.user.global.common.Role;
 import com.develetter.develetter.user.global.dto.LogInResponseDto;
 import com.develetter.develetter.user.global.dto.request.*;
 import com.develetter.develetter.user.global.dto.response.*;
+import com.develetter.develetter.user.global.entity.CertificationEntity;
+import com.develetter.develetter.user.global.entity.UserEntity;
+import com.develetter.develetter.user.provider.CertificationNumberProvider;
 import com.develetter.develetter.user.provider.EmailProvider;
 import com.develetter.develetter.user.provider.JwtProvider;
 import com.develetter.develetter.user.repository.CertificationRepository;
 import com.develetter.develetter.user.repository.UserRepository;
 import com.develetter.develetter.user.service.UserService;
-import com.develetter.develetter.user.global.entity.CertificationEntity;
-import com.develetter.develetter.user.global.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -34,6 +35,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * ID 중복 여부를 체크하는 메서드.
+     *
      * @param dto ID 중복 체크 요청 DTO
      * @return 중복 여부에 따른 응답
      */
@@ -53,6 +55,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 이메일 인증을 위한 인증 번호를 전송하는 메서드.
+     *
      * @param dto 이메일 인증 요청 DTO
      * @return 이메일 전송 성공 여부에 따른 응답
      */
@@ -67,7 +70,7 @@ public class UserServiceImpl implements UserService {
             if (isExistId) return EmailCertificationResponseDto.duplicateId();
 
             // 인증 번호 생성 및 이메일 전송
-            String certificationNumber = getCertificationNumber();
+            String certificationNumber = CertificationNumberProvider.generateNumber();
             boolean isSendSuccess = emailProvider.sendVerificationEmail(email, certificationNumber);
             if (!isSendSuccess) return EmailCertificationResponseDto.mailSendFail();
 
@@ -84,6 +87,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 인증 번호 확인 메서드.
+     *
      * @param dto 인증 번호 확인 요청 DTO
      * @return 인증 성공 여부에 따른 응답
      */
@@ -112,6 +116,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 회원 가입 처리 메서드.
+     *
      * @param dto 회원 가입 요청 DTO
      * @return 회원 가입 성공 여부에 따른 응답
      */
@@ -136,18 +141,17 @@ public class UserServiceImpl implements UserService {
             String encodedPassword = passwordEncoder.encode(password);
             dto.setPassword(encodedPassword);
 
-            String role= dto.getRole();
+            String role = dto.getRole();
 
             //유저 확인
-            if(!role.equals(Role.USER) && !role.equals(Role.ADMIN))
+            if (!role.equals(Role.USER) && !role.equals(Role.ADMIN))
                 return SignupResponseDto.wrongRole();
 
-            if(role.equals(Role.USER)) {
-                UserEntity userEntity = new UserEntity(null,accountId, encodedPassword, email, "app", Role.USER);
+            if (role.equals(Role.USER)) {
+                UserEntity userEntity = new UserEntity(null, accountId, encodedPassword, email, "app", Role.USER);
                 userRepository.save(userEntity);
-            }
-            else if(role.equals(Role.ADMIN)) {
-                UserEntity userEntity = new UserEntity(null,accountId, encodedPassword, email, "app", Role.ADMIN);
+            } else if (role.equals(Role.ADMIN)) {
+                UserEntity userEntity = new UserEntity(null, accountId, encodedPassword, email, "app", Role.ADMIN);
                 userRepository.save(userEntity);
             }
             // 인증 엔티티 삭제(계속 남겨둘수도있음)
@@ -161,13 +165,14 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 로그인 처리 메서드.
+     *
      * @param dto 로그인 요청 DTO
      * @return 로그인 성공 여부 및 JWT 토큰
      */
     @Override
     public ResponseEntity<? super SigninResponseDto> signIn(SigninRequestDto dto) {
         String token = null;
-        String role="ROLE_ANONYMOUS";
+        String role = "ROLE_ANONYMOUS";
 
         try {
             String accountId = dto.getId();
@@ -177,16 +182,16 @@ public class UserServiceImpl implements UserService {
             // 비밀번호 일치 확인
             String password = dto.getPassword();
             String encodedPassword = userEntity.getPassword();
-            role=userEntity.getRole();
+            role = userEntity.getRole();
             boolean isMatched = passwordEncoder.matches(password, encodedPassword);
             if (!isMatched) return SigninResponseDto.signInFail();  // 비밀번호 불일치
 
             // JWT 토큰 생성
-            token = jwtProvider.create(accountId,role);
+            token = jwtProvider.create(accountId, role);
 
-            role=userRepository.findByAccountId(accountId).getRole();
+            role = userRepository.findByAccountId(accountId).getRole();
 
-            return SigninResponseDto.success(token,role);  // 로그인 성공 및 토큰 반환
+            return SigninResponseDto.success(token, role);  // 로그인 성공 및 토큰 반환
         } catch (Exception e) {
             e.printStackTrace();
             return SigninResponseDto.signInFail();
@@ -227,6 +232,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 사용자 계정 삭제 처리 메서드.
+     *
      * @param dto 계정 삭제 요청 DTO
      * @return 삭제 성공 여부에 따른 응답
      */
@@ -254,12 +260,4 @@ public class UserServiceImpl implements UserService {
         return DeleteIdResponseDto.success();  // 삭제 성공 응답
     }
 
-    private String getCertificationNumber() {
-        String certificationNumber = "";
-
-        for (int count = 0; count < 4; count++)
-            certificationNumber += (int) (Math.random() * 10);
-
-        return certificationNumber;
-    }
 }

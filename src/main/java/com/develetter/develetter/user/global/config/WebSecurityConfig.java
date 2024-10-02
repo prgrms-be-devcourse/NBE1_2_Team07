@@ -63,7 +63,7 @@ public class WebSecurityConfig {
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 비활성화 (JWT 사용)
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/", "/api/auth/**", "/oauth2/**").permitAll() // 인증 없이 접근 가능
-                        .requestMatchers("/api/user/**").hasRole("USER") // USER 역할 필요
+                        .requestMatchers("/api/user/**").hasAnyRole("USER","ADMIN") // USER, ADMIN둘다 가능
                         .requestMatchers("/api/admin/**").hasRole("ADMIN") // ADMIN 역할 필요
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )
@@ -71,7 +71,7 @@ public class WebSecurityConfig {
                         .authorizationEndpoint(endpoint -> endpoint.baseUri("/api/auth/oauth2")) // OAuth2 로그인 엔드포인트 설정
                         .redirectionEndpoint(endpoint -> endpoint.baseUri("/oauth2/callback/*")) // 리디렉션 엔드포인트 설정
 //                        .authorizationEndpoint(endpoint -> endpoint.baseUri("/oauth2/authorization")) // OAuth2 로그인 URL
-//                        .redirectionEndpoint(endpoint -> endpoint.baseUri("/login/oauth2/code/*")) // 리디��션 URL
+//                        .redirectionEndpoint(endpoint -> endpoint.baseUri("/login/oauth2/code/*")) // 리디렉션 URL
                         .userInfoEndpoint(endpoint -> endpoint.userService(oAuth2UserService)) // 사용자 정보 서비스 설정
                         .successHandler(oAuthSuccessHandler) // 성공 핸들러 설정
                 )
@@ -79,7 +79,7 @@ public class WebSecurityConfig {
                         .authenticationEntryPoint(new FailedAuthenticationEntryPoint())) // 인증 실패 시 처리
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가
 
-        return httpSecurity.build(); // SecurityFilterChain 빌드
+        return httpSecurity.build();
     }
 
     /**

@@ -39,6 +39,8 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         String token = jwtProvider.create(userId, "ROLE_USER");
 
         // 인증 성공 후 클라이언트로 토큰을 전달할 수 있는 로직 추가 (리다이렉트)
+        response.sendRedirect("http://localhost:3000/auth/oauth-response/" + token + "/3600");
+
     }
 //    @Override
 //    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
