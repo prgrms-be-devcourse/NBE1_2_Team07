@@ -1,7 +1,5 @@
 package com.develetter.develetter.mail.service;
 
-import com.develetter.develetter.conference.dto.ConferenceResDto;
-import com.develetter.develetter.conference.service.ConferenceServiceImpl;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -15,36 +13,30 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.time.*;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.WeekFields;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 @EnableAsync
 public class AsyncMailService {
-    // TODO: setQueueCapacity로 비동기로 처리 가능한 이메일 제한 필요
     private final JavaMailSender javaMailSender;
     private final SpringTemplateEngine templateEngine;
-    //private final ConferenceServiceImpl conferenceService;
 
     //메일 전송 메서드
     @Async
-    public void sendMail(String email) {
+    public void sendMail(String email, String conferenceHtml) {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         try {
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
             mimeMessageHelper.setTo(email);
             mimeMessageHelper.setSubject(getWeekOfMonth(LocalDate.now()) +  " develetter 뉴스레터");
-            mimeMessageHelper.setText(setContext(getWeekOfMonth(LocalDate.now())), true);
+            mimeMessageHelper.setText(setContext(getWeekOfMonth(LocalDate.now()), conferenceHtml), true);
             javaMailSender.send(mimeMessage);
             log.info("Sending Mail Success");
         } catch (MessagingException e) {
             log.error("Sending Mail Failed");
-            //발송 실패 메일 5분 후 재전송
-            //sendFailMail(email);
         }
     }
 
@@ -91,11 +83,11 @@ public class AsyncMailService {
     }
 
 
-    // thymeleaf를 통한 html 적용
-    public String setContext(String date) {
+    // thymeleaf를 통한 mail.html 적용
+    public String setContext(String date, String conferenceHtml) {
         Context context = new Context();
         context.setVariable("date", date);
-        //context.setVariable("conferenceList", conferenceList);
+        context.setVariable("conferenceHtml", conferenceHtml);
         return templateEngine.process("email", context);
     }
 }

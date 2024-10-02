@@ -46,13 +46,11 @@
       background-color: #f2f2f2;
       font-weight: bold;
       height: auto;
+      text-align: center;
     }
     .today {
       background-color: #fffacd;
       font-weight: bold;
-    }
-    .other-month {
-      color: #ccc;
     }
     .date {
       position: absolute;
@@ -60,30 +58,36 @@
       right: 5px;
       font-size: 12px;
     }
-    .event {
-      background-color: #e6f3ff;
-      border-radius: 3px;
-      padding: 2px 5px;
-      margin-top: 20px;
-      font-size: 12px;
+    .event-container {
       position: absolute;
       left: 5px;
       right: 5px;
+      top: 25px;
+      bottom: 5px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .event {
+      background-color: #e6f3ff;
+      padding: 2px 5px;
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      height: 20px;
+      line-height: 20px;
     }
     .event-start {
       border-top-left-radius: 3px;
       border-bottom-left-radius: 3px;
-      margin-right: -1px;
     }
     .event-end {
       border-top-right-radius: 3px;
       border-bottom-right-radius: 3px;
-      margin-left: -1px;
     }
     .event-middle {
       border-radius: 0;
-      margin-left: -1px;
-      margin-right: -1px;
     }
   </style>
 </head>
@@ -96,13 +100,13 @@
     <table id="calendar">
       <thead>
       <tr>
-        <th style="text-align: center">월</th>
-        <th style="text-align: center">화</th>
-        <th style="text-align: center">수</th>
-        <th style="text-align: center">목</th>
-        <th style="text-align: center">금</th>
-        <th style="text-align: center">토</th>
-        <th style="text-align: center">일</th>
+        <th>월</th>
+        <th>화</th>
+        <th>수</th>
+        <th>목</th>
+        <th>금</th>
+        <th>토</th>
+        <th>일</th>
       </tr>
       </thead>
       <tbody>
@@ -111,31 +115,15 @@
   </div>
 </div>
 
-<script>
+<script  th:inline="javascript">
+  /*<![CDATA[*/
   const startDate = new Date();
-
   const endDate = new Date(startDate);
   endDate.setMonth(startDate.getMonth() + 1);
 
-  // 서버로부터 컨퍼런스 이벤트를 가져오는 코드
-  fetch('/conferences')
-          .then(response => response.json())
-          .then(data => {
-            const events = data.map(event => ({
-              name: event.name,
-              startDate: new Date(event.startDate),
-              endDate: new Date(event.endDate)
-            }));
+  const conferenceList = /*[(${conferenceList})]*/ [];
 
-            // startDate와 endDate는 이미 설정된 값이라고 가정
-            generateCalendar(startDate, endDate, events);
-          })
-          .catch(error => console.error('컨퍼런스 데이터를 가져오는 중 오류 발생:', error));
-  const events = [
-    { name: "Conference", startDate: new Date(2024, 10, 1), endDate: new Date(2024, 10, 2) }
-  ];
-
-  function generateCalendar(start, end, events) {
+  function generateCalendar(start, end, conferences) {
     const table = document.getElementById('calendar').getElementsByTagName('tbody')[0];
     let currentDate = new Date(start);
     currentDate.setDate(currentDate.getDate() - currentDate.getDay() + 1); // Start from Monday
@@ -153,22 +141,39 @@
           cell.className = 'today';
         }
 
-        // Check for events
-        events.forEach(event => {
-          if (currentDate >= event.startDate && currentDate <= event.endDate) {
+        let eventContainer = document.createElement('div');
+        eventContainer.className = 'event-container';
+        cell.appendChild(eventContainer);
+
+        // Check for conferences
+        conferences.forEach(conference => {
+          const applyStart = new Date(conference.applyStartDate);
+          const confEnd = new Date(conference.applyEndDate);
+
+          if (currentDate >= applyStart && currentDate <= confEnd) {
             let eventDiv = document.createElement('div');
             eventDiv.className = 'event';
-            eventDiv.textContent = event.name;
+            eventDiv.textContent = conference.name;
 
-            if (currentDate.getTime() === event.startDate.getTime()) {
+            if (currentDate.getTime() === applyStart.getTime()) {
               eventDiv.classList.add('event-start');
-            } else if (currentDate.getTime() === event.endDate.getTime()) {
+            } else if (currentDate.getTime() === confEnd.getTime()) {
               eventDiv.classList.add('event-end');
             } else {
               eventDiv.classList.add('event-middle');
             }
 
-            cell.appendChild(eventDiv);
+            // Check if there's already an event for this conference
+            let existingEvent = eventContainer.querySelector(`[data-conference-id="${conference.id}"]`);
+            if (existingEvent) {
+              // If exists, update the existing event
+              existingEvent.classList.remove('event-end');
+              existingEvent.classList.add('event-middle');
+            } else {
+              // If not, add the new event
+              eventDiv.setAttribute('data-conference-id', conference.id);
+              eventContainer.appendChild(eventDiv);
+            }
           }
         });
 
@@ -177,7 +182,8 @@
     }
   }
 
-  generateCalendar(startDate, endDate, events);
+  generateCalendar(startDate, endDate, conferenceList);
+  /*]]>*/
 </script>
 </body>
 </html>
