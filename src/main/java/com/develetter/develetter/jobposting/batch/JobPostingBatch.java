@@ -1,0 +1,169 @@
+package com.develetter.develetter.jobposting.batch;
+
+import com.develetter.develetter.jobposting.JobPostingKeyword;
+import com.develetter.develetter.jobposting.UserFilter;
+import com.develetter.develetter.jobposting.UserFilterRepository;
+import com.develetter.develetter.jobposting.entity.FilteredJobPosting;
+import com.develetter.develetter.jobposting.entity.JobPosting;
+import com.develetter.develetter.jobposting.repository.FilteredJobPostingRepository;
+import com.develetter.develetter.jobposting.repository.JobPostingRepository;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobExecutionListener;
+import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.data.RepositoryItemReader;
+import org.springframework.batch.item.data.builder.RepositoryItemReaderBuilder;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.Sort;
+import org.springframework.transaction.PlatformTransactionManager;
+
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Map;
+
+@Configuration
+@RequiredArgsConstructor
+public class JobPostingBatch {
+
+    private final PlatformTransactionManager platformTransactionManager;
+    private final JobRepository jobRepository;
+    private final JobPostingRepository jobPostingRepository;
+    private final FilteredJobPostingRepository filteredJobPostingRepository;
+
+    @Bean
+    public JobExecutionListener jobExecutionListener() {
+
+        return new JobExecutionListener() {
+
+            private LocalDateTime startTime;
+
+            @Override
+            public void beforeJob(JobExecution jobExecution) {
+                startTime = LocalDateTime.now();
+            }
+
+            @Override
+            public void afterJob(JobExecution jobExecution) {
+                LocalDateTime endTime = LocalDateTime.now();
+
+                long nanos = ChronoUnit.NANOS.between(startTime, endTime);
+                double seconds = nanos / 1_000_000_000.0;
+
+                System.out.println("Job 실행 시간: " + seconds + " 초");
+            }
+        };
+    }
+    @Bean
+    public Job filterJobPostingsJob() {
+        return new JobBuilder("filterJobPostingsJob", jobRepository)
+                .listener(jobExecutionListener())
+                .start(filterJobPostingsStep())
+                .build();
+    }
+
+    @Bean
+    public Step filterJobPostingsStep() {
+        return new StepBuilder("filterJobPostingsStep", jobRepository)
+                .<JobPosting, FilteredJobPosting>chunk(10, platformTransactionManager)
+                .reader(itemReader())
+                .processor(itemProcessor(null, null))
+                .writer(customItemWriter()) // 사용자 정의 writer 사용
+                .build();
+    }
+
+    @Bean
+    @StepScope
+    public RepositoryItemReader<JobPosting> itemReader() {
+        return new RepositoryItemReaderBuilder<JobPosting>()
+                .name("jobPostingItemReader")
+                .pageSize(10)
+                .repository(jobPostingRepository)
+                .methodName("findAll") // 모든 JobPosting을 조회
+                .sorts(Map.of("id", Sort.Direction.ASC))
+                .build();
+    }
+
+    @Bean
+    @StepScope
+    public ItemProcessor<JobPosting, FilteredJobPosting> itemProcessor(
+            @Value("#{jobParameters['userId']}") Long userId,
+            UserFilterRepository userFilterRepository) {
+
+        return jobPosting -> {
+            UserFilter userFilter = userFilterRepository.findByUserId(userId)
+                    .orElseThrow(EntityNotFoundException::new);
+            JobPostingKeyword jobpostingKeywords = userFilter.getJobpostingKeywords();
+
+            List<String> jobNames = parseKeywords(jobpostingKeywords.getJobNames());
+            List<String> locationNames = parseKeywords(jobpostingKeywords.getLocationNames());
+            List<String> jobTypeNames = parseKeywords(jobpostingKeywords.getJobTypeNames());
+            List<String> industryNames = parseKeywords(jobpostingKeywords.getIndustryNames());
+            List<String> educationLevelNames = parseKeywords(jobpostingKeywords.getEducationLevelNames());
+
+            // 필터링 조건을 통과하는지 확인
+            if (containsIgnoreCase(jobPosting.getJobName(), jobNames) &&
+                    containsIgnoreCase(jobPosting.getLocationName(), locationNames) &&
+                    containsIgnoreCase(jobPosting.getJobTypeName(), jobTypeNames) &&
+                    containsIgnoreCase(jobPosting.getIndustryName(), industryNames) &&
+                    containsIgnoreCase(jobPosting.getEducationLevelName(), educationLevelNames)) {
+
+                // 조건을 통과한 경우 필터링된 JobPosting ID 반환
+                return FilteredJobPosting.builder()
+                        .userId(userId)
+                        .jobPostings(jobPosting.getId().toString()) // ID를 저장
+                        .build();
+            }
+            return null; // 필터 조건을 통과하지 못하면 null 반환
+        };
+    }
+
+    @Bean
+    public ItemWriter<FilteredJobPosting> customItemWriter() {
+        return items -> {
+            for (FilteredJobPosting item : items) {
+                // 기존의 FilteredJobPosting을 찾거나 새로 생성
+                FilteredJobPosting filteredJobPosting = filteredJobPostingRepository.findByUserId(item.getUserId())
+                        .orElse(FilteredJobPosting.builder()
+                                .userId(item.getUserId())
+                                .jobPostings("") // 초기값 설정
+                                .build());
+
+                // 새 JobPosting ID를 추가
+                filteredJobPosting.addJobPosting(Long.valueOf(item.getJobPostings()));
+
+                // 업데이트된 필터링된 잡 포스팅 저장
+                filteredJobPostingRepository.save(filteredJobPosting);
+            }
+        };
+    }
+
+    private List<String> parseKeywords(String keywords) {
+        if (keywords == null || keywords.isBlank()) {
+            return List.of(); // 빈 리스트 반환
+        }
+        return List.of(keywords.split(","))
+                .stream()
+                .map(String::trim)
+                .filter(keyword -> !keyword.isEmpty())
+                .map(String::toLowerCase)
+                .toList();
+    }
+
+    private boolean containsIgnoreCase(String fieldValue, List<String> keywords) {
+        if (fieldValue == null) {
+            return false;
+        }
+        return keywords.stream().anyMatch(keyword -> fieldValue.toLowerCase().contains(keyword.toLowerCase()));
+    }
+}
