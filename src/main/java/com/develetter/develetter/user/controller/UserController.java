@@ -91,6 +91,13 @@ public class UserController {
         return response;
     }
 
+    @PostMapping("/get-id")
+    public ResponseEntity<Long> getIdByEmail(@RequestParam String email) {
+        Long userId = userService.getUserIdByEmail(email);
+        log.info("[getIdByEmail]: email: " + email);
+        return ResponseEntity.ok(userId);
+    }
+
     /**
      * 카카오 또는 네이버 로그인 처리
 //     * @param requestDto OAuth 로그인 요청 데이터 (provider와 accessToken 포함)

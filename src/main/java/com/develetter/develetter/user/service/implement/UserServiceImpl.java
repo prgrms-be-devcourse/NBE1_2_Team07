@@ -13,6 +13,7 @@ import com.develetter.develetter.user.repository.CertificationRepository;
 import com.develetter.develetter.user.repository.UserRepository;
 import com.develetter.develetter.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
  * 사용자 인증, 회원 가입, 이메일 인증 등을 처리하며 예외 상황에 대한 대응 로직도 포함.
  */
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
@@ -47,6 +49,7 @@ public class UserServiceImpl implements UserService {
             if (isExistId) return IdCheckResponseDto.duplicateId();  // 중복된 ID인 경우 응답
         } catch (Exception e) {
             e.printStackTrace();
+            log.info("ID 중복 체크 실패: {}", e.getMessage());
             return LogInResponseDto.databaseError();
         }
 
@@ -80,6 +83,7 @@ public class UserServiceImpl implements UserService {
 
         } catch (Exception e) {
             e.printStackTrace();
+            log.info("이메일 인증 실패: {}", e.getMessage());
             return LogInResponseDto.databaseError();
         }
         return EmailCertificationResponseDto.success();  // 이메일 전송 성공 응답
@@ -108,6 +112,7 @@ public class UserServiceImpl implements UserService {
 
         } catch (Exception e) {
             e.printStackTrace();
+            log.info("인증 번호 확인 실패: {}", e.getMessage());
             return LogInResponseDto.databaseError();
         }
 
@@ -158,6 +163,7 @@ public class UserServiceImpl implements UserService {
             certificationRepository.deleteByAccountId(accountId);
         } catch (Exception e) {
             e.printStackTrace();
+            log.info("회원 가입 실패: {}", e.getMessage());
             return LogInResponseDto.databaseError();
         }
         return SignupResponseDto.success();  // 회원 가입 성공 응답
@@ -194,6 +200,7 @@ public class UserServiceImpl implements UserService {
             return SigninResponseDto.success(token, role);  // 로그인 성공 및 토큰 반환
         } catch (Exception e) {
             e.printStackTrace();
+            log.info("로그인 실패: {}", e.getMessage());
             return SigninResponseDto.signInFail();
         }
     }
@@ -255,9 +262,17 @@ public class UserServiceImpl implements UserService {
 
         } catch (Exception e) {
             e.printStackTrace();
+            log.info("회원 삭제 실패: {}",e.getMessage());
             return DeleteIdResponseDto.databaseError();  // 데이터베이스 오류 처리
         }
         return DeleteIdResponseDto.success();  // 삭제 성공 응답
     }
+
+    @Override
+    public Long getUserIdByEmail(String email) {
+        UserEntity user = userRepository.findByEmail(email);
+        return user.getId();
+    }
+
 
 }

@@ -17,6 +17,7 @@ import lombok.experimental.SuperBuilder;
 public class UserEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private Long id;
 
     @Column(name = "account_id", nullable = false, length = 30)

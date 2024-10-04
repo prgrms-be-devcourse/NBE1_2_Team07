@@ -2,12 +2,14 @@ package com.develetter.develetter.user.provider;
 
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class EmailProvider {
 
     private final JavaMailSender javaMailSender;  // 이메일 전송을 위한 JavaMailSender 객체
@@ -39,7 +41,8 @@ public class EmailProvider {
             javaMailSender.send(message);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.info("이메일 {} 로 전송 실패", email);
+            log.info("Error: {}", e.getMessage());
             return false;
         }
         return true;  // 전송 성공 시 true 리턴
