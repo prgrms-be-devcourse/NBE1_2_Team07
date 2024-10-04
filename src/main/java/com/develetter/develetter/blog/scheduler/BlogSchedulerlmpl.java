@@ -21,10 +21,10 @@ public class BlogSchedulerlmpl implements BlogScheduler{
     private final InterestServicelmpl interestServicelmpl;
 
     // 매주 월요일 자정에 실행
-    //@Scheduled(cron = "0 0 0 * * MON")
+    @Scheduled(cron = "0 0 0 * * MON")
     //@Scheduled(cron = "0 * * * * *")
     //@Scheduled(cron = "*/10 * * * * *")
-    @Scheduled(fixedRate = 20000)
+//    @Scheduled(fixedRate = 20000)
     @Transactional
     public void fetchAndStoreBlogData() {
         // 블로그 테이블 초기화 (모든 데이터 삭제)
