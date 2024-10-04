@@ -6,7 +6,10 @@ import com.develetter.develetter.jobposting.scheduler.JobPostingSchedulerImpl;
 import com.develetter.develetter.jobposting.service.JobPostingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.batch.core.launch.JobOperator;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/jobposting")
@@ -16,6 +19,7 @@ public class JobPostingController {
 
     private final JobPostingService jobPostingService;
     private final JobPostingSchedulerImpl jobPostingSchedulerImpl;
+    private final JobOperator jobOperator;
 
     @GetMapping("/testCall")
     public ApiResponseDto<JobSearchResDto> callJobSearchApi() {
@@ -23,4 +27,18 @@ public class JobPostingController {
 
         return new ApiResponseDto<>(200, "성공");
     }
+
+    @GetMapping("/testFilter")
+    public ApiResponseDto<Void> callTestFilter() {
+        jobPostingService.filterJobPostingByKeywords(1L);
+
+        return new ApiResponseDto<>(200, "성공");
+    }
+
+//    @GetMapping("/startJob")
+//    public String startJob() throws JobInstanceAlreadyExistsException, NoSuchJobException, JobParametersInvalidException {
+//        String jobParameters = "time=" + System.currentTimeMillis();
+//        jobOperator.start("jobFilteringJob", jobParameters);
+//        return "Job started";
+//    }
 }

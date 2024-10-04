@@ -19,7 +19,7 @@ public class MailService {
     //private final UserRepository userRepository;
 
     // 매분 10초마다
-    @Scheduled(cron = "10 * * * * *")
+//    @Scheduled(cron = "10 * * * * *")
     // 월요일 오전 9시마다
     //@Scheduled(cron = "0 0 9 * * MON")
     public void scheduleEmailCron(){
