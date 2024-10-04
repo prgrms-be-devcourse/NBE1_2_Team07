@@ -1,5 +1,6 @@
 package com.develetter.develetter.mail.service;
 
+import com.develetter.develetter.mail.dto.MailResDto;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -23,17 +24,30 @@ import java.time.temporal.WeekFields;
 public class AsyncMailService {
     private final JavaMailSender javaMailSender;
     private final SpringTemplateEngine templateEngine;
+    private final MailService mailService;
 
     //메일 전송 메서드
     @Async
-    public void sendMail(String email, String conferenceHtml) {
+    public void sendMail(MailResDto mailResDto, String conferenceHtml) {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         try {
+            // user 테이블에서 userId로 email 찾기
+            String email = "";
+                    //mailResDto.userId();
+
+            //filtered_job_posting 테이블에서 filtered_job_posting_id로 채용공고 리스트 찾기
+
+            //채용공고 리스트로 job_posting Calendar 생성
+
+            //filtered_blog 테이블에서 filtered_blog_id로 블로그 데이터 찾기
+
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
             mimeMessageHelper.setTo(email);
             mimeMessageHelper.setSubject(getWeekOfMonth(LocalDate.now()) +  " develetter 뉴스레터");
             mimeMessageHelper.setText(setContext(getWeekOfMonth(LocalDate.now()), conferenceHtml), true);
             javaMailSender.send(mimeMessage);
+            //메일 발송 체크
+            mailService.updateMailSendingCheck(mailResDto.id());
             log.info("Sending Mail Success");
         } catch (MessagingException e) {
             log.error("Sending Mail Failed");
@@ -57,7 +71,7 @@ public class AsyncMailService {
 //        }
 //    }
 
-    // 날짜 가져오는 메서드
+    // 날짜 (ex. 9월 둘째주) 가져오는 메서드
     public String getWeekOfMonth(LocalDate localDate) {
         // 한 주의 시작은 월요일이고, 첫 주에 4일이 포함되어있어야 첫 주 취급 (목/금/토/일)
         WeekFields weekFields = WeekFields.of(DayOfWeek.MONDAY, 4);

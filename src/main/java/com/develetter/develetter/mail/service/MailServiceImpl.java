@@ -1,5 +1,6 @@
 package com.develetter.develetter.mail.service;
 
+import com.develetter.develetter.conference.entity.Conference;
 import com.develetter.develetter.mail.converter.Converter;
 import com.develetter.develetter.mail.dto.MailRegisterDto;
 import com.develetter.develetter.mail.dto.MailResDto;
@@ -46,7 +47,13 @@ public class MailServiceImpl implements MailService {
 
     @Override
     public void updateMailSendingCheck(Long id) {
-
+        Mail mail = mailRepository.findById(id).orElse(null);
+        if (mail != null) {
+            mail.updateMailCheck();
+            mailRepository.save(mail);
+        } else {
+            log.error("Could not update mail with id {}", id);
+        }
     }
 
 }

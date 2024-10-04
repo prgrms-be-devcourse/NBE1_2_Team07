@@ -48,14 +48,16 @@ public class MailSchedulerImpl implements MailScheduler {
             String conferenceHtml = conferenceCalendarService.createConferenceCalendar();
 
             //메일 정보 가져오기
-            List<MailResDto> mailList = mailService.getAllMails();
+            //List<MailResDto> mailList = mailService.getAllMails();
 
-//            for (String email : emails) {
-//                asyncMailService.sendMail(email, conferenceHtml);
+
+//            for (MailResDto mailResDto : mailList) {
+//                asyncMailService.sendMail(mailResDto, conferenceHtml);
 //            }
 
         } catch (Exception e) {
             log.error("Scheduled Mail Sent Error");
+
         }
     }
 }

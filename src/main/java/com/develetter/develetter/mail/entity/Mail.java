@@ -32,4 +32,7 @@ public class Mail extends BaseEntity {
     @Column(name = "sending_check", nullable = false)
     private Boolean sendingCheck = false;
 
+    public void updateMailCheck() {
+        this.sendingCheck = true;
+    }
 }
