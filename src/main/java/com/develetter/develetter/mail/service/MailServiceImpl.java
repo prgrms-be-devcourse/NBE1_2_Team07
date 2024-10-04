@@ -39,6 +39,7 @@ public class MailServiceImpl implements MailService {
 //            Long filteredJobPostingId = (Long) result[1];
 //            Long filteredBlogId = (Long) result[2];
 //
+        //추후에 필요하지 않다고 판단되면 entity로 진행예정
 //            MailRegisterDto mailRegisterDto = new MailRegisterDto(userId, filteredJobPostingId, filteredBlogId);
 //            Mail mail = Converter.toEntity(mailRegisterDto);
 //            mailRepository.save(mail);

@@ -24,10 +24,10 @@ public class Mail extends BaseEntity {
     private Long userId;  // User 엔티티와 1:1 외래키 설정
 
     @Column(name = "filtered_job_posting_id", nullable = false)
-    private Long filteredJobPostingId;  // JobPosting 엔티티와 1:1 외래키 설정
+    private Long filteredJobPostingId;  // FilteredJobPosting 엔티티와 1:1 외래키 설정
 
     @Column(name = "filtered_blog_id", nullable = false)
-    private Long filteredBlogId;  // Blog 엔티티와 1:1 외래키 설정
+    private Long filteredBlogId;  // FilteredBlog 엔티티와 1:1 외래키 설정
 
     @Column(name = "sending_check", nullable = false)
     private Boolean sendingCheck = false;

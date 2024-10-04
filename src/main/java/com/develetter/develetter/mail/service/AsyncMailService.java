@@ -50,7 +50,7 @@ public class AsyncMailService {
             mailService.updateMailSendingCheck(mailResDto.id());
             log.info("Sending Mail Success");
         } catch (MessagingException e) {
-            log.error("Sending Mail Failed");
+            log.error("Sending Mail Failed", e);
         }
     }
 

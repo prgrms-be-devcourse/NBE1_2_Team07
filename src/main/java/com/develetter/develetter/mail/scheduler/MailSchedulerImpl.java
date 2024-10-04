@@ -38,9 +38,9 @@ public class MailSchedulerImpl implements MailScheduler {
     @Override
     @Transactional
     // 매분 10초마다
-    @Scheduled(cron = "10 * * * * *")
+    //@Scheduled(cron = "10 * * * * *")
     // 월요일 오전 9시마다
-    //@Scheduled(cron = "0 0 9 * * MON")
+    @Scheduled(cron = "0 0 9 * * MON")
     public void sendingMails() {
         try {
 
@@ -56,7 +56,7 @@ public class MailSchedulerImpl implements MailScheduler {
 //            }
 
         } catch (Exception e) {
-            log.error("Scheduled Mail Sent Error");
+            log.error("Scheduled Mail Sent Error", e);
 
         }
     }
