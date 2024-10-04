@@ -14,7 +14,7 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
-public class CalendarService {
+public class ConferenceCalendarService {
     private final ConferenceService conferenceService;
 
     @Transactional
