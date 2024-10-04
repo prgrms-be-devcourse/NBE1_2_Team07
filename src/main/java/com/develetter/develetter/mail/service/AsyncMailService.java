@@ -16,6 +16,7 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 import java.time.*;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.WeekFields;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -54,22 +55,21 @@ public class AsyncMailService {
         }
     }
 
-//    //발송 실패 메일 재전송 메서드
-//    private void sendFailMail(String email) {
-//        try {
-//            Thread.sleep(300000);
-//
-//            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-//            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
-//            mimeMessageHelper.setTo(email);
-//            mimeMessageHelper.setSubject(getWeekOfMonth(LocalDate.now()) +  " develetter 뉴스레터");
-//            mimeMessageHelper.setText(setContext(getWeekOfMonth(LocalDate.now())), true);
-//            javaMailSender.send(mimeMessage);
-//            log.info("Finally Sending Mail Success");
-//        } catch (Exception e) {
-//            log.error("Finally Sending Mail Failed");
-//        }
-//    }
+    //미발송 메일 재전송 메서드
+    public void sendingFailedMails(String conferenceHtml) {
+        try {
+            //전송 실패한 메일 정보 가져오기
+            List<MailResDto> mailList = mailService.getFailedMails();
+
+            for (MailResDto mailResDto : mailList) {
+               sendMail(mailResDto, conferenceHtml);
+            }
+            log.info("Filed Mail Sent Success");
+
+        } catch (Exception e) {
+            log.error("Filed Mail Sent Error", e);
+        }
+    }
 
     // 날짜 (ex. 9월 둘째주) 가져오는 메서드
     public String getWeekOfMonth(LocalDate localDate) {

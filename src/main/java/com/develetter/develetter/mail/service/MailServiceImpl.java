@@ -1,8 +1,6 @@
 package com.develetter.develetter.mail.service;
 
-import com.develetter.develetter.conference.entity.Conference;
 import com.develetter.develetter.mail.converter.Converter;
-import com.develetter.develetter.mail.dto.MailRegisterDto;
 import com.develetter.develetter.mail.dto.MailResDto;
 import com.develetter.develetter.mail.entity.Mail;
 import com.develetter.develetter.mail.repository.MailRepository;
@@ -27,6 +25,14 @@ public class MailServiceImpl implements MailService {
                 .stream().map(Converter::toDto)
                 .toList();
     }
+
+    @Override
+    public List<MailResDto> getFailedMails() {
+        return mailRepository.findBySendingCheckIsFalse()
+                .stream().map(Converter::toDto)
+                .toList();
+    }
+
 
     @Override
     public void createMails() {
@@ -56,5 +62,6 @@ public class MailServiceImpl implements MailService {
             log.error("Could not update mail with id {}", id);
         }
     }
+
 
 }

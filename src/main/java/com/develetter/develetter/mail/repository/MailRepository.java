@@ -2,7 +2,6 @@ package com.develetter.develetter.mail.repository;
 
 import com.develetter.develetter.mail.entity.Mail;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
@@ -13,5 +12,7 @@ public interface MailRepository extends JpaRepository<Mail, Long> {
 //            "LEFT JOIN FilteredJobPosting jp ON u.id = jp.userId " +
 //            "LEFT JOIN FilteredBlogPosting bl ON u.id = bl.userId")
 //    List<Object[]> findAllUserWithFilteredData();
+
+    List<Mail> findBySendingCheckIsFalse();
 }
 

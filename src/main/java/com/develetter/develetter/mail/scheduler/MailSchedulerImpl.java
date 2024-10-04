@@ -16,13 +16,13 @@ import java.util.List;
 @Component
 @Slf4j
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MailSchedulerImpl implements MailScheduler {
     private final ConferenceCalendarService conferenceCalendarService;
     private final AsyncMailService asyncMailService;
     private final MailService mailService;
 
     @Override
-    @Transactional
     // 월요일 오전 8시 55분마다
     @Scheduled(cron = "0 50 8 * * MON")
     public void saveMails() {
@@ -36,28 +36,30 @@ public class MailSchedulerImpl implements MailScheduler {
     }
 
     @Override
-    @Transactional
     // 매분 10초마다
     //@Scheduled(cron = "10 * * * * *")
     // 월요일 오전 9시마다
     @Scheduled(cron = "0 0 9 * * MON")
     public void sendingMails() {
+
+        //conference Calendar 생성
+        String conferenceHtml = conferenceCalendarService.createConferenceCalendar();
+
         try {
-
-            //conference Calendar 생성
-            String conferenceHtml = conferenceCalendarService.createConferenceCalendar();
-
             //메일 정보 가져오기
-            //List<MailResDto> mailList = mailService.getAllMails();
+            List<MailResDto> mailList = mailService.getAllMails();
 
-
-//            for (MailResDto mailResDto : mailList) {
-//                asyncMailService.sendMail(mailResDto, conferenceHtml);
-//            }
+            for (MailResDto mailResDto : mailList) {
+                asyncMailService.sendMail(mailResDto, conferenceHtml);
+            }
 
         } catch (Exception e) {
             log.error("Scheduled Mail Sent Error", e);
-
+            //미발송 메일 재전송
+            if (mailService.getFailedMails() != null) {
+                asyncMailService.sendingFailedMails(conferenceHtml);
+                log.info("Failed Mail Sent Success");
+            }
         }
     }
 }
