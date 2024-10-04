@@ -9,10 +9,7 @@ import com.develetter.develetter.jobposting.repository.FilteredJobPostingReposit
 import com.develetter.develetter.jobposting.repository.JobPostingRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobExecutionListener;
-import org.springframework.batch.core.Step;
+import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
@@ -40,6 +37,7 @@ public class JobPostingBatch {
     private final JobRepository jobRepository;
     private final JobPostingRepository jobPostingRepository;
     private final FilteredJobPostingRepository filteredJobPostingRepository;
+    private final UserFilterRepository userFilterRepository;
 
     @Bean
     public JobExecutionListener jobExecutionListener() {
@@ -75,15 +73,14 @@ public class JobPostingBatch {
     @Bean
     public Step filterJobPostingsStep() {
         return new StepBuilder("filterJobPostingsStep", jobRepository)
-                .<JobPosting, FilteredJobPosting>chunk(10, platformTransactionManager)
+                .<JobPosting, Long>chunk(10, platformTransactionManager)
                 .reader(itemReader())
-                .processor(itemProcessor(null, null))
-                .writer(customItemWriter()) // 사용자 정의 writer 사용
+                .processor(itemProcessor(null))
+                .writer(customItemWriter(null)) // 사용자 정의 writer 사용
                 .build();
     }
 
     @Bean
-    @StepScope
     public RepositoryItemReader<JobPosting> itemReader() {
         return new RepositoryItemReaderBuilder<JobPosting>()
                 .name("jobPostingItemReader")
@@ -96,9 +93,8 @@ public class JobPostingBatch {
 
     @Bean
     @StepScope
-    public ItemProcessor<JobPosting, FilteredJobPosting> itemProcessor(
-            @Value("#{jobParameters['userId']}") Long userId,
-            UserFilterRepository userFilterRepository) {
+    public ItemProcessor<JobPosting, Long> itemProcessor(
+            @Value("#{jobParameters['userId']}") Long userId) {
 
         return jobPosting -> {
             UserFilter userFilter = userFilterRepository.findByUserId(userId)
@@ -118,35 +114,34 @@ public class JobPostingBatch {
                     containsIgnoreCase(jobPosting.getIndustryName(), industryNames) &&
                     containsIgnoreCase(jobPosting.getEducationLevelName(), educationLevelNames)) {
 
-                // 조건을 통과한 경우 필터링된 JobPosting ID 반환
-                return FilteredJobPosting.builder()
-                        .userId(userId)
-                        .jobPostings(jobPosting.getId().toString()) // ID를 저장
-                        .build();
+                // 조건을 통과한 경우 JobPosting ID 반환
+                return jobPosting.getId(); // ID를 반환
             }
             return null; // 필터 조건을 통과하지 못하면 null 반환
         };
     }
 
     @Bean
-    public ItemWriter<FilteredJobPosting> customItemWriter() {
+    @StepScope
+    public ItemWriter<Long> customItemWriter(@Value("#{jobParameters['userId']}") Long userId) {
         return items -> {
-            for (FilteredJobPosting item : items) {
+            for (Long jobPostingId : items) {
                 // 기존의 FilteredJobPosting을 찾거나 새로 생성
-                FilteredJobPosting filteredJobPosting = filteredJobPostingRepository.findByUserId(item.getUserId())
+                FilteredJobPosting filteredJobPosting = filteredJobPostingRepository.findByUserId(userId)
                         .orElse(FilteredJobPosting.builder()
-                                .userId(item.getUserId())
+                                .userId(userId)
                                 .jobPostings("") // 초기값 설정
                                 .build());
 
                 // 새 JobPosting ID를 추가
-                filteredJobPosting.addJobPosting(Long.valueOf(item.getJobPostings()));
+                filteredJobPosting.addJobPosting(jobPostingId);
 
                 // 업데이트된 필터링된 잡 포스팅 저장
                 filteredJobPostingRepository.save(filteredJobPosting);
             }
         };
     }
+
 
     private List<String> parseKeywords(String keywords) {
         if (keywords == null || keywords.isBlank()) {
