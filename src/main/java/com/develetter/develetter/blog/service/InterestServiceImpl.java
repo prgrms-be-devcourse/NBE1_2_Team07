@@ -14,7 +14,7 @@ import java.util.Random;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class InterestServiceImpl {
+public class InterestServiceImpl implements InterestService{
 
     private final BlogRepository blogRepository;
     private final FilteredBlogRepository filteredBlogRepository;
