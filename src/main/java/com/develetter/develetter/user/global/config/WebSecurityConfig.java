@@ -117,4 +117,5 @@ class FailedAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setStatus(HttpServletResponse.SC_FORBIDDEN); // 403 상태 반환
         response.getWriter().write("{\"code\":\"NP\",\"message\":\"No Permission.\"}"); // 인증 실패 메시지 반환
     }
+
 }

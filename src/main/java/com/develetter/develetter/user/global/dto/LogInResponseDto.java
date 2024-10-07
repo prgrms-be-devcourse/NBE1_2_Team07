@@ -33,5 +33,4 @@ public class LogInResponseDto {
         return ResponseEntity.status(400).body(responseBody); //400 Error == Bad Request
     }
 
-
 }

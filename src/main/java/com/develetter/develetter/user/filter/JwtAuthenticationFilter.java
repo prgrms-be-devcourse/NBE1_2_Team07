@@ -33,7 +33,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
+//todo
     private final UserRepository userRepository;  // 사용자 정보를 조회 repository
     private final JwtProvider jwtProvider;        // JWT 토큰 제공 및 검증 provider
 
@@ -80,8 +80,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.setContext(securityContext);
 
         } catch (Exception e) {
-            e.printStackTrace();
-            log.info("Invalid JWT token.{}", e.getMessage());
+            log.info("Invalid JWT token.{}", e);
         }
 
         // 필터 체인 계속 진행

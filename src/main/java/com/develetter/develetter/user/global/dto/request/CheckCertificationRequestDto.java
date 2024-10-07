@@ -6,7 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter @Setter
+//todo
+@Getter
 @NoArgsConstructor
 public class CheckCertificationRequestDto {
     @NotBlank

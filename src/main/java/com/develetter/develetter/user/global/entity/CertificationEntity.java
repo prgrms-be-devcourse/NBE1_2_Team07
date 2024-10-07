@@ -29,6 +29,6 @@ public class CertificationEntity extends BaseEntity {
     @Column(name = "email", nullable = false, length = 255)
     private String email;
 
-    @Column(name = "certification_number", nullable = false, length = 4)
+    @Column(name = "certification_number", nullable = false, length = 6)
     private String certificationNumber;
 }

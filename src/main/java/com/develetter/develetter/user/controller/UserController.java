@@ -98,39 +98,4 @@ public class UserController {
         return ResponseEntity.ok(userId);
     }
 
-    /**
-     * 카카오 또는 네이버 로그인 처리
-//     * @param requestDto OAuth 로그인 요청 데이터 (provider와 accessToken 포함)
-//     * @return JWT 토큰과 메시지를 담은 응답
-//     */
-//    @PostMapping("/oauth2/login")
-//    public ResponseEntity<OAuthLoginResponseDto> oauthLogin(@RequestBody @Valid OAuthLoginRequestDto requestDto) {
-//        // 소셜 로그인 처리
-//        String token = userService.oauthLogin(requestDto);
-//
-//        // JWT 토큰과 로그인 성공 메시지 반환
-//        OAuthLoginResponseDto responseDto = new OAuthLoginResponseDto(token, "Login successful");
-//        log.info("[oauthLogin]: User logged in successfully with provider {}", requestDto.getProvider());
-//        return ResponseEntity.ok(responseDto);
-//    }
-//
-//    /**
-//     * OAuth2 로그인 성공 후 호출되는 엔드포인트
-//     * @param authentication 인증 객체
-//     * @return JWT 토큰과 메시지를 담은 응답 객체
-//     */
-//    @GetMapping("/oauth2/success")
-//    public ResponseEntity<? super OAuthLoginResponseDto> oauth2Success(Authentication authentication) {
-//        // 인증된 사용자 정보 가져오기
-//        String userId = authentication.getName();
-//        String token = userService.generateToken(userId);
-//
-//        // 응답 DTO 생성
-//        OAuthLoginResponseDto responseDto = new OAuthLoginResponseDto(token, "Login successful");
-//
-//        log.info("[oauth2Success]: User {} logged in successfully", userId);
-//        return ResponseEntity.ok(responseDto);
-//    }
-//}
-
 }

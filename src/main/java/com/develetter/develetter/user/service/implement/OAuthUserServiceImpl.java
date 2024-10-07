@@ -56,14 +56,6 @@ public class OAuthUserServiceImpl extends DefaultOAuth2UserService {
             email = responseMap.get("email");  // 네이버 사용자의 이메일 추출
             userEntity = new UserEntity(null, accountId, password, email, "naver", "ROLE_USER");  // 사용자 엔티티 생성
         }
-
-        // 구글 OAuth 처리
-        if (oauthClientName.equals("google")) {
-            accountId = "google_" + oAuth2User.getAttributes().get("sub");  // 구글 사용자의 고유 ID(sub) 설정
-            email = (String) oAuth2User.getAttributes().get("email");  // 구글 사용자의 이메일 추출
-            userEntity = new UserEntity(null, accountId, password, email, "google", "ROLE_USER");  // 사용자 엔티티 생성
-        }
-
         // 사용자 정보 저장
         userRepository.save(userEntity);
 

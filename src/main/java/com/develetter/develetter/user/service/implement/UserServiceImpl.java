@@ -48,8 +48,7 @@ public class UserServiceImpl implements UserService {
             boolean isExistId = userRepository.existsByAccountId(accountId);
             if (isExistId) return IdCheckResponseDto.duplicateId();  // 중복된 ID인 경우 응답
         } catch (Exception e) {
-            e.printStackTrace();
-            log.info("ID 중복 체크 실패: {}", e.getMessage());
+            log.info("ID 중복 체크 실패: {}", e);
             return LogInResponseDto.databaseError();
         }
 
@@ -67,7 +66,8 @@ public class UserServiceImpl implements UserService {
         try {
             String accountId = dto.getId();
             String email = dto.getEmail();
-
+//
+            //todo  --> 아이디 중복확인을 건너뛰고 이메일 인증을 진행할수있는 회원이 있기에 남겨두기로 결정
             // 중복된 ID인지 확인
             boolean isExistId = userRepository.existsByAccountId(accountId);
             if (isExistId) return EmailCertificationResponseDto.duplicateId();
@@ -82,8 +82,7 @@ public class UserServiceImpl implements UserService {
             certificationRepository.save(certificationEntity);
 
         } catch (Exception e) {
-            e.printStackTrace();
-            log.info("이메일 인증 실패: {}", e.getMessage());
+            log.info("이메일 인증 실패: {}", e);
             return LogInResponseDto.databaseError();
         }
         return EmailCertificationResponseDto.success();  // 이메일 전송 성공 응답
@@ -111,8 +110,7 @@ public class UserServiceImpl implements UserService {
             if (!isMatch) return CheckCertificationResponseDto.certificationFail();
 
         } catch (Exception e) {
-            e.printStackTrace();
-            log.info("인증 번호 확인 실패: {}", e.getMessage());
+            log.info("인증 번호 확인 실패: {}", e);
             return LogInResponseDto.databaseError();
         }
 
@@ -153,17 +151,16 @@ public class UserServiceImpl implements UserService {
                 return SignupResponseDto.wrongRole();
 
             if (role.equals(Role.USER)) {
-                UserEntity userEntity = new UserEntity(null, accountId, encodedPassword, email, "app", Role.USER);
+                UserEntity userEntity = UserEntity.builder().accountId(accountId).password(encodedPassword).email(email).type("general").role(Role.USER).build();
                 userRepository.save(userEntity);
             } else if (role.equals(Role.ADMIN)) {
-                UserEntity userEntity = new UserEntity(null, accountId, encodedPassword, email, "app", Role.ADMIN);
+                UserEntity userEntity = UserEntity.builder().accountId(accountId).password(encodedPassword).email(email).type("general").role(Role.ADMIN).build();
                 userRepository.save(userEntity);
             }
             // 인증 엔티티 삭제(계속 남겨둘수도있음)
             certificationRepository.deleteByAccountId(accountId);
         } catch (Exception e) {
-            e.printStackTrace();
-            log.info("회원 가입 실패: {}", e.getMessage());
+            log.info("회원 가입 실패: {}", e);
             return LogInResponseDto.databaseError();
         }
         return SignupResponseDto.success();  // 회원 가입 성공 응답
@@ -199,42 +196,10 @@ public class UserServiceImpl implements UserService {
 
             return SigninResponseDto.success(token, role);  // 로그인 성공 및 토큰 반환
         } catch (Exception e) {
-            e.printStackTrace();
-            log.info("로그인 실패: {}", e.getMessage());
+            log.info("로그인 실패: {}", e);
             return SigninResponseDto.signInFail();
         }
     }
-
-//    @Override
-//    public ResponseEntity<? super OAuthLoginResponseDto> oAuthLogin(OAuthLoginRequestDto dto) {
-//        try {
-//            String provider = dto.getProvider();
-//            String accessToken = dto.getAccessToken();
-//
-//            // 실제 OAuth2 인증 로직 처리 (카카오 또는 네이버 API와 통신하여 사용자 정보 확인)
-//            String userId = verifyOAuth2AccessToken(provider, accessToken);
-//
-//            // 사용자 정보가 없을 경우 회원가입 처리
-//            UserEntity userEntity = userRepository.findByUserId(userId);
-//            if (userEntity == null) {
-//                // 새로운 사용자 회원가입 처리 (사용자 정보를 가져와 UserEntity 생성)
-//                String email = getEmailFromOAuthProvider(provider, accessToken); // OAuth 제공자에서 이메일 정보 추출
-//                userEntity = new UserEntity(userId, email, provider);
-//                userRepository.save(userEntity);
-//            }
-//
-//            // JWT 토큰 생성
-//            String token = jwtProvider.create(userId);
-//
-//            // 성공 응답 반환
-//            OAuthLoginResponseDto responseDto = new OAuthLoginResponseDto(token, "OAuth login successful");
-//            return ResponseEntity.ok(responseDto);
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return OAuthLoginResponseDto.fail();  // 실패 응답 처리
-//        }
-//    }
 
 
     /**
@@ -261,8 +226,7 @@ public class UserServiceImpl implements UserService {
             certificationRepository.deleteByAccountId(accountId);
 
         } catch (Exception e) {
-            e.printStackTrace();
-            log.info("회원 삭제 실패: {}",e.getMessage());
+            log.info("회원 삭제 실패: {}",e);
             return DeleteIdResponseDto.databaseError();  // 데이터베이스 오류 처리
         }
         return DeleteIdResponseDto.success();  // 삭제 성공 응답
