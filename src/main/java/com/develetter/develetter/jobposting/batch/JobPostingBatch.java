@@ -5,29 +5,31 @@ import com.develetter.develetter.jobposting.UserFilter;
 import com.develetter.develetter.jobposting.UserFilterRepository;
 import com.develetter.develetter.jobposting.entity.FilteredJobPosting;
 import com.develetter.develetter.jobposting.entity.JobPosting;
+import com.develetter.develetter.jobposting.entity.QJobPosting;
 import com.develetter.develetter.jobposting.repository.FilteredJobPostingRepository;
 import com.develetter.develetter.jobposting.repository.JobPostingRepository;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.batch.core.*;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobExecutionListener;
+import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.data.RepositoryItemReader;
-import org.springframework.batch.item.data.builder.RepositoryItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.domain.Sort;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Map;
 
 @Configuration
 @RequiredArgsConstructor
@@ -38,6 +40,10 @@ public class JobPostingBatch {
     private final JobPostingRepository jobPostingRepository;
     private final FilteredJobPostingRepository filteredJobPostingRepository;
     private final UserFilterRepository userFilterRepository;
+    private final JPAQueryFactory queryFactory;
+    private final EntityManagerFactory emf;
+
+    private static final int chunkSize = 10;
 
     @Bean
     public JobExecutionListener jobExecutionListener() {
@@ -62,33 +68,41 @@ public class JobPostingBatch {
             }
         };
     }
+
     @Bean
-    public Job filterJobPostingsJob() {
+    public Job filterJobPostingsJob(JPAQueryFactory jpaQueryFactory) {
         return new JobBuilder("filterJobPostingsJob", jobRepository)
                 .listener(jobExecutionListener())
-                .start(filterJobPostingsStep())
+                .start(filterJobPostingsStep(jpaQueryFactory))
                 .build();
     }
 
     @Bean
-    public Step filterJobPostingsStep() {
+    public Step filterJobPostingsStep(JPAQueryFactory jpaQueryFactory) {
         return new StepBuilder("filterJobPostingsStep", jobRepository)
-                .<JobPosting, Long>chunk(10, platformTransactionManager)
-                .reader(itemReader())
+                .<JobPosting, Long>chunk(chunkSize, platformTransactionManager)
+                .reader(reader())
                 .processor(itemProcessor(null))
                 .writer(customItemWriter(null)) // 사용자 정의 writer 사용
                 .build();
     }
 
+
+//    @Bean
+//    public RepositoryItemReader<JobPosting> itemReader() {
+//        return new RepositoryItemReaderBuilder<JobPosting>()
+//                .name("jobPostingItemReader")
+//                .pageSize(10)
+//                .repository(jobPostingRepository)
+//                .methodName("findAll") // 모든 JobPosting을 조회
+//                .sorts(Map.of("id", Sort.Direction.ASC))
+//                .build();
+//    }
+
     @Bean
-    public RepositoryItemReader<JobPosting> itemReader() {
-        return new RepositoryItemReaderBuilder<JobPosting>()
-                .name("jobPostingItemReader")
-                .pageSize(10)
-                .repository(jobPostingRepository)
-                .methodName("findAll") // 모든 JobPosting을 조회
-                .sorts(Map.of("id", Sort.Direction.ASC))
-                .build();
+    public QuerydslPagingItemReader<JobPosting> reader() {
+        return new QuerydslPagingItemReader<>(emf, chunkSize, queryFactory -> queryFactory
+                .selectFrom(QJobPosting.jobPosting));
     }
 
     @Bean
