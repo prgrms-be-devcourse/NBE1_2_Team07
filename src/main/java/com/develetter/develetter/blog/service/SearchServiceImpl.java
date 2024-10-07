@@ -83,7 +83,6 @@ public class SearchServiceImpl implements SearchService{
                     if (!title.toLowerCase().contains(query.toLowerCase()) &&
                             !snippet.toLowerCase().contains(query.toLowerCase()) &&
                             !link.toLowerCase().contains(query.toLowerCase())) {
-                        log.info("검색어가 포함되지 않음, 건너뜀.");
                         continue;  // 검색어가 포함되지 않은 경우 해당 결과 건너뜀
                     }
 
@@ -91,10 +90,6 @@ public class SearchServiceImpl implements SearchService{
                     if (BlogUtil.isBlogDetailPage(link)) {
                         // 중복된 링크인지 확인
                         if (!blogRepository.existsByLink(link)) {
-                            log.info("현재 query: {}", query);
-                            log.info("title: {}", title);
-                            log.info("snippet: {}", snippet);
-                            log.info("link: {}", link);
                             // pagemap에서 추가 정보를 추출하고 데이터 저장
                             processPagemap(item, title, snippet, link);
                             savedCount++;  // 저장된 블로그 글 수 증가
@@ -133,16 +128,8 @@ public class SearchServiceImpl implements SearchService{
                         title = metatags.getString("og:title");
 
                         if (title.equalsIgnoreCase("Google for Developers Korea Blog")) {
-                            log.info("해당 블로그는 건너뜁니다: {}", title);
                             return;
                         }
-                    }
-
-                    // Open Graph 설명이 있으면 덮어쓰기
-                    if (metatags.has("og:description")) {
-                        // Open Graph 설명을 사용하지 않고, 원래 snippet을 유지하려면 이 부분을 제거합니다.
-                        // snippet = metatags.getString("og:description");
-                        log.info("원래 스니펫을 유지합니다: {}", snippet);
                     }
 
                     // Open Graph 이미지 URL이 있으면 덮어쓰기

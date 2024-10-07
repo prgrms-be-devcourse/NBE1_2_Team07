@@ -1,7 +1,8 @@
 package com.develetter.develetter.blog.controller;
 
 import com.develetter.develetter.blog.entity.Blog;
-import com.develetter.develetter.blog.service.InterestServicelmpl;
+import com.develetter.develetter.blog.service.InterestServiceImpl;
+import com.develetter.develetter.jobposting.UserFilterRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -17,17 +18,24 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/interest")
 public class InterestController {
 
-    private final InterestServicelmpl interestServicelmpl;
+    private final InterestServiceImpl interestServiceImpl;
+    private final UserFilterRepository userFilterRepository;
 
-    // GET 메서드로 /interest 페이지 렌더링
+    //interest 페이지 렌더링
     @GetMapping
     public String showInterestPage() {
         return "interest";  // interest.html 템플릿 반환
     }
 
     @PostMapping("/send-email")
-    public String sendEmail(@RequestParam String searchQuery, Model model) {
-        Blog blog = interestServicelmpl.getRandomBlogBySearchQuery(searchQuery);
+    public String sendEmail(@RequestParam String searchQuery, @RequestParam Long userId, Model model) {
+        // UserFilter를 userId로 찾음
+        userFilterRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        // UserId와 searchQuery를 기반으로 블로그를 가져옴
+        Blog blog = interestServiceImpl.getRandomBlogBySearchQuery(userId, searchQuery);
+
 
         if (blog != null) {
             model.addAttribute("blog", blog);
@@ -40,4 +48,5 @@ public class InterestController {
         return "interest";
     }
 }
+
 

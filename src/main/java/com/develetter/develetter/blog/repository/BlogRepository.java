@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BlogRepository extends JpaRepository<Blog, Long> {
@@ -24,4 +25,6 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
     // 관심사에 맞는 블로그 글 중 랜덤으로 하나 선택
     @Query("SELECT b FROM Blog b WHERE b.title LIKE %:searchQuery% OR b.snippet LIKE %:searchQuery% ORDER BY RAND()")
     List<Blog> findBlogsBySearchQuery(@Param("searchQuery") String searchQuery);
+
+    Optional<Blog> findById(Long id);
 }
