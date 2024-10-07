@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
@@ -84,11 +86,11 @@ public class ConferenceCalendarService {
                 .append("height: auto;")
                 .append("text-align: center;")
                 .append("}")
+                .append(".past-date {")
+                .append("  color: #ccc;")
+                .append("}")
                 .append(".today {")
                 .append("background-color: #fffacd;")
-                .append("}")
-                .append(".other-month {")
-                .append("color: #ccc;")
                 .append("}")
                 .append(".event {")
                 .append("background-color: #e6f3ff;")
@@ -100,6 +102,26 @@ public class ConferenceCalendarService {
                 .append(".date {")
                 .append("font-weight: bold;")
                 .append("margin-bottom: 5px;")
+                .append("}")
+                .append(".conference-list {")
+                .append("  margin-top: 20px;")
+                .append("  padding: 20px;")
+                .append("  background-color: white;")
+                .append("  border-radius: 10px;")
+                .append("  box-shadow: 0 0 10px rgba(0,0,0,0.1);")
+                .append("}")
+                .append(".conference-item {")
+                .append("  margin-bottom: 20px;")
+                .append("  padding: 15px;")
+                .append("  border: 1px solid #ddd;")
+                .append("  border-radius: 5px;")
+                .append("}")
+                .append(".conference-item h3 {")
+                .append("  margin-top: 0;")
+                .append("  color: #4a90e2;")
+                .append("}")
+                .append(".conference-item p {")
+                .append("  margin: 5px 0;")
                 .append("}")
                 .append("</style>")
                 .append("</head>")
@@ -116,28 +138,31 @@ public class ConferenceCalendarService {
                 .append("<tbody>");
 
         // 현재 날짜 설정
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.DAY_OF_MONTH, 1); // 현재 월의 1일로 설정
-        int currentMonth = calendar.get(Calendar.MONTH);
+        LocalDate today = LocalDate.now();
+        today = today.plusDays(2);
+        LocalDate endDate = today.plusDays(27); // 4주 후
 
         // 첫 주의 시작일 조정
-        int firstDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-        calendar.add(Calendar.DAY_OF_MONTH, -firstDayOfWeek + 1);
+        DayOfWeek firstDayOfWeek = today.getDayOfWeek();
+        LocalDate startDate = today.minusDays(firstDayOfWeek.getValue() - 1);
 
         // 4주 동안의 달력 생성
         for (int week = 0; week < 4; week++) {
             htmlContent.append("<tr>");
             for (int day = 0; day < 7; day++) {
-                LocalDate currentDate = calendar.getTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                String dateClass = calendar.get(Calendar.MONTH) == currentMonth ? "" : "other-month";
-                if (currentDate.equals(LocalDate.now())) {
-                    dateClass += " today";
+                LocalDate currentDate = startDate.plusDays(week * 7 + day);
+                String dateClass = "";
+
+                if (currentDate.isBefore(today)) {
+                    dateClass = "past-date";
+                } else if (currentDate.equals(today)) {
+                    dateClass = "today";
                 }
 
                 htmlContent.append("<td class=\"").append(dateClass).append("\">")
                         .append("<div class=\"date\">")
-                        .append(calendar.get(Calendar.MONTH) + 1).append("/")
-                        .append(calendar.get(Calendar.DAY_OF_MONTH))
+                        .append(currentDate.getMonthValue()).append("/")
+                        .append(currentDate.getDayOfMonth())
                         .append("</div>");
 
                 // 컨퍼런스 이벤트 추가
@@ -150,7 +175,6 @@ public class ConferenceCalendarService {
                 }
 
                 htmlContent.append("</td>");
-                calendar.add(Calendar.DAY_OF_MONTH, 1);
             }
             htmlContent.append("</tr>");
         }
@@ -158,7 +182,21 @@ public class ConferenceCalendarService {
         htmlContent.append("</tbody>")
                 .append("</table>")
                 .append("</div>")
-                .append("</div>")
+                .append("</div>");
+
+        // 컨퍼런스 상세 정보 추가
+        htmlContent.append("<div class=\"conference-list\">")
+                .append("<h2>컨퍼런스 상세 정보</h2>");
+
+        for (ConferenceResDto conference : conferenceList) {
+            htmlContent.append("<div class=\"conference-item\">")
+                    .append("<h3>").append(conference.name()).append(" | ").append(conference.host()).append("</h3>")
+                    .append("<p>신청 기간: ").append(conference.applyStartDate()).append(" ~ ").append(conference.applyEndDate()).append("</p>")
+                    .append("<p>진행 기간: ").append(conference.startDate()).append(" ~ ").append(conference.endDate()).append("</p>")
+                    .append("</div>");
+        }
+
+        htmlContent.append("</div>")
                 .append("</body>")
                 .append("</html>");
 
