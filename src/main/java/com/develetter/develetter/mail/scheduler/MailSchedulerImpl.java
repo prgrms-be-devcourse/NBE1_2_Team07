@@ -49,17 +49,20 @@ public class MailSchedulerImpl implements MailScheduler {
             //메일 정보 가져오기
             List<MailResDto> mailList = mailService.getAllMails();
 
+            //메일 전송
             for (MailResDto mailResDto : mailList) {
                 asyncMailService.sendMail(mailResDto, conferenceHtml);
             }
 
-        } catch (Exception e) {
-            log.error("Scheduled Mail Sent Error", e);
             //미발송 메일 재전송
             if (mailService.getFailedMails() != null) {
                 asyncMailService.sendingFailedMails(conferenceHtml);
-                log.info("Failed Mail Sent Success");
             }
+
+            //메일 soft delete
+
+        } catch (Exception e) {
+            log.error("Scheduled Mail Sent Error", e);
         }
     }
 }

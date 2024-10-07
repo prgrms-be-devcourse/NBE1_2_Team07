@@ -52,6 +52,7 @@ public class MailServiceImpl implements MailService {
 //        }
     }
 
+    @Transactional
     @Override
     public void updateMailSendingCheck(Long id) {
         Mail mail = mailRepository.findById(id).orElse(null);
