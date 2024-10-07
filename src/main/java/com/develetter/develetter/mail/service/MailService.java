@@ -12,4 +12,6 @@ public interface MailService {
     void createMails();
 
     void updateMailSendingCheck(Long id);
+
+    void updateMailDeleted(Long id);
 }

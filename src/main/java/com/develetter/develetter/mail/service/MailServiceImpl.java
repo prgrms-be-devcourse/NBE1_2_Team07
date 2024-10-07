@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,16 +22,17 @@ public class MailServiceImpl implements MailService {
 
     @Override
     public List<MailResDto> getAllMails() {
-        return mailRepository.findAll()
+        return mailRepository.findByDeletedIsFalse()
                 .stream().map(Converter::toDto)
                 .toList();
     }
 
     @Override
     public List<MailResDto> getFailedMails() {
-        return mailRepository.findBySendingCheckIsFalse()
+        Optional<List<Mail>> failedMailList = mailRepository.findBySendingCheckIsFalse();
+        return failedMailList.map(mail -> mail
                 .stream().map(Converter::toDto)
-                .toList();
+                .toList()).orElse(null);
     }
 
 
@@ -64,5 +66,15 @@ public class MailServiceImpl implements MailService {
         }
     }
 
-
+    @Transactional
+    @Override
+    public void updateMailDeleted(Long id) {
+        Mail mail = mailRepository.findById(id).orElse(null);
+        if (mail != null) {
+            mail.updateMailDelete();
+            mailRepository.save(mail);
+        } else {
+            log.error("Could not update mail with id {}", id);
+        }
+    }
 }

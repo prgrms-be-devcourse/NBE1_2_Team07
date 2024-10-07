@@ -33,7 +33,7 @@ public class AsyncMailService {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         try {
             // user 테이블에서 userId로 email 찾기
-            String email = "";
+            String email = "dkdudab@hanmail.net";
                     //mailResDto.userId();
 
             //filtered_job_posting 테이블에서 filtered_job_posting_id로 채용공고 리스트 찾기
@@ -49,25 +49,11 @@ public class AsyncMailService {
             javaMailSender.send(mimeMessage);
             //메일 발송 체크
             mailService.updateMailSendingCheck(mailResDto.id());
-            log.info("Sending Mail Success");
+            //메일 DB 삭제
+            mailService.updateMailDeleted(mailResDto.id());
+            log.info("Send Mail Success");
         } catch (MessagingException e) {
             log.error("Sending Mail Failed", e);
-        }
-    }
-
-    //미발송 메일 재전송 메서드
-    public void sendingFailedMails(String conferenceHtml) {
-        try {
-            //전송 실패한 메일 정보 가져오기
-            List<MailResDto> mailList = mailService.getFailedMails();
-
-            for (MailResDto mailResDto : mailList) {
-               sendMail(mailResDto, conferenceHtml);
-            }
-            log.info("Filed Mail Sent Success");
-
-        } catch (Exception e) {
-            log.error("Filed Mail Sent Error", e);
         }
     }
 

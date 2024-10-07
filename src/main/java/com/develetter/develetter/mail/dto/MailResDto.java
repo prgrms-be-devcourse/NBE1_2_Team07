@@ -7,6 +7,7 @@ public record MailResDto(
         Long userId,
         Long filteredJobPostingId,
         Long filteredBlogId,
-        Boolean sendingCheck
+        Boolean sendingCheck,
+        Boolean deleted
 ) {
 }

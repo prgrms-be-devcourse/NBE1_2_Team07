@@ -22,7 +22,8 @@ public class Converter {
                 mail.getUserId(),
                 mail.getFilteredJobPostingId(),
                 mail.getFilteredBlogId(),
-                mail.getSendingCheck()
+                mail.getSendingCheck(),
+                mail.getDeleted()
         );
     }
 }
