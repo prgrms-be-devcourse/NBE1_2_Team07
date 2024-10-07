@@ -2,7 +2,7 @@ package com.develetter.develetter.blog.controller;
 
 
 import com.develetter.develetter.blog.entity.Blog;
-import com.develetter.develetter.blog.service.SearchServicelmpl;
+import com.develetter.develetter.blog.service.SearchServiceImpl;
 import com.develetter.develetter.global.dto.ApiResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,17 +17,17 @@ import java.util.List;
 @RequestMapping("/search")
 public class SearchController {
 
-    private final SearchServicelmpl searchServicelmpl;
+    private final SearchServiceImpl searchServiceImpl;
 
     @GetMapping()
     public ApiResponseDto<Void> searchAndSave(@RequestParam String query) {
-        searchServicelmpl.searchAndSaveBlogPosts(query);
+        searchServiceImpl.searchAndSaveBlogPosts(query);
         return new ApiResponseDto<>(200, "검색 데이터가 성공적으로 저장되었습니다!");
     }
 
     @GetMapping("/blogs")
     public ApiResponseDto<List<Blog>> getAllBlogs() {
-        return new ApiResponseDto<>(200, "블로그 조회 성공", searchServicelmpl.getAllBlogs());
+        return new ApiResponseDto<>(200, "블로그 조회 성공", searchServiceImpl.getAllBlogs());
     }
 
 }

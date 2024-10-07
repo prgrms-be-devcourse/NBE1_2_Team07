@@ -18,7 +18,7 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class SearchServicelmpl implements SearchService{
+public class SearchServiceImpl implements SearchService{
     private static final String DEFAULT_IMAGE_URL = "https://img.freepik.com/premium-vector/crescent-moon-shining-starry-night-sky_1334819-5377.jpg";
 
     @Value("${API_KEY}")
@@ -35,7 +35,7 @@ public class SearchServicelmpl implements SearchService{
     public void searchAndSaveBlogPosts(String query) {
         int startIndex = 1;  // 검색 결과의 시작 인덱스 (페이징 처리 위해서 사용)
         int savedCount = 0;  // 저장된 블로그 글 개수
-        int requiredCount = 30;  // 최소한 저장해야 할 세부 글 개수
+        int requiredCount = 20;  // 최소한 저장해야 할 세부 글 개수
         boolean hasMoreResults = true;
 
         try {
@@ -80,8 +80,10 @@ public class SearchServicelmpl implements SearchService{
                     String snippet = item.getString("snippet");
                     String link = item.getString("link");
 
-                    // 검색어 필터링: title, snippet, link에 검색어가 포함되지 않으면 건너뜀
-                    if (!title.contains(query) && !snippet.contains(query) && !link.contains(query)) {
+                    if (!title.toLowerCase().contains(query.toLowerCase()) &&
+                            !snippet.toLowerCase().contains(query.toLowerCase()) &&
+                            !link.toLowerCase().contains(query.toLowerCase())) {
+                        log.info("검색어가 포함되지 않음, 건너뜀.");
                         continue;  // 검색어가 포함되지 않은 경우 해당 결과 건너뜀
                     }
 
@@ -89,6 +91,10 @@ public class SearchServicelmpl implements SearchService{
                     if (BlogUtil.isBlogDetailPage(link)) {
                         // 중복된 링크인지 확인
                         if (!blogRepository.existsByLink(link)) {
+                            log.info("현재 query: {}", query);
+                            log.info("title: {}", title);
+                            log.info("snippet: {}", snippet);
+                            log.info("link: {}", link);
                             // pagemap에서 추가 정보를 추출하고 데이터 저장
                             processPagemap(item, title, snippet, link);
                             savedCount++;  // 저장된 블로그 글 수 증가
@@ -101,7 +107,7 @@ public class SearchServicelmpl implements SearchService{
             }
 
         } catch (Exception e) {
-            log.error("Error during searchAndSaveBlogPosts", e);
+            log.error("searchAndSaveBlogPosts에서 문제 발생", e);
         }
     }
 
@@ -125,11 +131,18 @@ public class SearchServicelmpl implements SearchService{
                     // Open Graph 제목이 있으면 덮어쓰기
                     if (metatags.has("og:title")) {
                         title = metatags.getString("og:title");
+
+                        if (title.equalsIgnoreCase("Google for Developers Korea Blog")) {
+                            log.info("해당 블로그는 건너뜁니다: {}", title);
+                            return;
+                        }
                     }
 
                     // Open Graph 설명이 있으면 덮어쓰기
                     if (metatags.has("og:description")) {
-                        snippet = metatags.getString("og:description");
+                        // Open Graph 설명을 사용하지 않고, 원래 snippet을 유지하려면 이 부분을 제거합니다.
+                        // snippet = metatags.getString("og:description");
+                        log.info("원래 스니펫을 유지합니다: {}", snippet);
                     }
 
                     // Open Graph 이미지 URL이 있으면 덮어쓰기
@@ -143,16 +156,12 @@ public class SearchServicelmpl implements SearchService{
             saveBlogData(title, snippet, link, imageUrl);
 
         } catch (Exception e) {
-            log.error("Error during processPagemap", e);
+            log.error("processPagemap에서 문제 발생", e);
         }
     }
 
     private void saveBlogData(String title, String snippet, String link, String imageUrl) {
         try {
-            if (snippet.length() > 255) {
-                snippet = snippet.substring(0, 255);
-            }
-
             // 이미지 URL이 없으면 기본 이미지 사용
             if (imageUrl == null || imageUrl.isEmpty()) {
                 imageUrl = DEFAULT_IMAGE_URL;
@@ -167,9 +176,11 @@ public class SearchServicelmpl implements SearchService{
 
             // 데이터베이스에 저장
             blogRepository.save(blog);
+            // 저장 전 로그 출력
+            log.info("블로그 저장 완료: title={}, snippet={}, link={}, imageUrl={}", title, snippet, link, imageUrl);
 
         } catch (Exception e) {
-            log.error("Error during saveBlogData", e);
+            log.error("블로그 저장 문제 발생", e);
         }
     }
 
