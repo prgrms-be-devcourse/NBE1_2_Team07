@@ -35,7 +35,7 @@ public class SearchServiceImpl implements SearchService{
     public void searchAndSaveBlogPosts(String query) {
         int startIndex = 1;  // 검색 결과의 시작 인덱스 (페이징 처리 위해서 사용)
         int savedCount = 0;  // 저장된 블로그 글 개수
-        int requiredCount = 20;  // 최소한 저장해야 할 세부 글 개수
+        int requiredCount = 30;  // 최소한 저장해야 할 세부 글 개수
         boolean hasMoreResults = true;
 
         try {
