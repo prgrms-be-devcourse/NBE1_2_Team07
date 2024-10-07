@@ -41,19 +41,20 @@ public class MailSchedulerImpl implements MailScheduler {
     // 월요일 오전 9시마다
     //@Scheduled(cron = "0 0 9 * * MON")
     public void sendingMails() {
-
-        //conference Calendar 생성
-        String conferenceHtml = conferenceCalendarService.createConferenceCalendar();
-
         try {
+
             //메일 정보 가져오기
             List<MailResDto> mailList = mailService.getAllMails();
 
-            //메일 전송
-            for (MailResDto mailResDto : mailList) {
-                asyncMailService.sendMail(mailResDto, conferenceHtml);
-            }
+            if (mailList != null) {
+                //conference Calendar 생성
+                String conferenceHtml = conferenceCalendarService.createConferenceCalendar();
 
+                //메일 전송
+                for (MailResDto mailResDto : mailList) {
+                    asyncMailService.sendMail(mailResDto, conferenceHtml);
+                }
+            }
         } catch (Exception e) {
             log.error("Scheduled Mail Sent Error", e);
         }
@@ -65,15 +66,16 @@ public class MailSchedulerImpl implements MailScheduler {
     // 월요일 오전 9시 5분마다
     @Scheduled(cron = "0 5 9 * * MON")
     public void sendingFailedMails() {
-
-        //conference Calendar 생성
-        String conferenceHtml = conferenceCalendarService.createConferenceCalendar();
         try {
             //미발송 메일 정보 가져오기
             List<MailResDto> failedMailList = mailService.getFailedMails();
 
             //미발송 메일 재전송
             if (failedMailList != null) {
+
+                //conference Calendar 생성
+                String conferenceHtml = conferenceCalendarService.createConferenceCalendar();
+
                 for (MailResDto mailResDto : failedMailList) {
                     asyncMailService.sendMail(mailResDto, conferenceHtml);
                 }
