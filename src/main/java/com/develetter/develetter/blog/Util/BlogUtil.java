@@ -1,4 +1,4 @@
-package com.develetter.develetter.blog.util;
+package com.develetter.develetter.blog.Util;
 
 import java.util.Arrays;
 import java.util.List;
