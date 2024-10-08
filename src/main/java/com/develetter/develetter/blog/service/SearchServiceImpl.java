@@ -1,6 +1,6 @@
 package com.develetter.develetter.blog.service;
 
-import com.develetter.develetter.blog.Util.BlogUtil;
+import com.develetter.develetter.blog.util.BlogUtil;
 import com.develetter.develetter.blog.entity.Blog;
 import com.develetter.develetter.blog.repository.BlogRepository;
 import lombok.RequiredArgsConstructor;
@@ -163,8 +163,8 @@ public class SearchServiceImpl implements SearchService{
 
             // 데이터베이스에 저장
             blogRepository.save(blog);
-            // 저장 전 로그 출력
-            log.info("블로그 저장 완료: title={}, snippet={}, link={}, imageUrl={}", title, snippet, link, imageUrl);
+
+            //log.info("블로그 저장 완료: title={}, snippet={}, link={}, imageUrl={}", title, snippet, link, imageUrl);
 
         } catch (Exception e) {
             log.error("블로그 저장 문제 발생", e);
