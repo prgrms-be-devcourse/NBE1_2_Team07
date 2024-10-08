@@ -4,7 +4,7 @@ import com.develetter.develetter.blog.entity.Blog;
 import com.develetter.develetter.blog.repository.BlogRepository;
 import com.develetter.develetter.blog.service.InterestService;
 import com.develetter.develetter.blog.service.SearchService;
-import com.develetter.develetter.blog.util.BlogUtil;
+import com.develetter.develetter.blog.Util.BlogUtil;
 import com.develetter.develetter.jobposting.UserFilter;
 import com.develetter.develetter.jobposting.UserFilterRepository;
 import lombok.RequiredArgsConstructor;
