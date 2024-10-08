@@ -18,7 +18,7 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class SearchServicelmpl implements SearchService{
+public class SearchServiceImpl implements SearchService{
     private static final String DEFAULT_IMAGE_URL = "https://img.freepik.com/premium-vector/crescent-moon-shining-starry-night-sky_1334819-5377.jpg";
 
     @Value("${API_KEY}")
@@ -80,8 +80,9 @@ public class SearchServicelmpl implements SearchService{
                     String snippet = item.getString("snippet");
                     String link = item.getString("link");
 
-                    // 검색어 필터링: title, snippet, link에 검색어가 포함되지 않으면 건너뜀
-                    if (!title.contains(query) && !snippet.contains(query) && !link.contains(query)) {
+                    if (!title.toLowerCase().contains(query.toLowerCase()) &&
+                            !snippet.toLowerCase().contains(query.toLowerCase()) &&
+                            !link.toLowerCase().contains(query.toLowerCase())) {
                         continue;  // 검색어가 포함되지 않은 경우 해당 결과 건너뜀
                     }
 
@@ -101,7 +102,7 @@ public class SearchServicelmpl implements SearchService{
             }
 
         } catch (Exception e) {
-            log.error("Error during searchAndSaveBlogPosts", e);
+            log.error("searchAndSaveBlogPosts에서 문제 발생", e);
         }
     }
 
@@ -125,11 +126,10 @@ public class SearchServicelmpl implements SearchService{
                     // Open Graph 제목이 있으면 덮어쓰기
                     if (metatags.has("og:title")) {
                         title = metatags.getString("og:title");
-                    }
 
-                    // Open Graph 설명이 있으면 덮어쓰기
-                    if (metatags.has("og:description")) {
-                        snippet = metatags.getString("og:description");
+                        if (title.equalsIgnoreCase("Google for Developers Korea Blog")) {
+                            return;
+                        }
                     }
 
                     // Open Graph 이미지 URL이 있으면 덮어쓰기
@@ -143,16 +143,12 @@ public class SearchServicelmpl implements SearchService{
             saveBlogData(title, snippet, link, imageUrl);
 
         } catch (Exception e) {
-            log.error("Error during processPagemap", e);
+            log.error("processPagemap에서 문제 발생", e);
         }
     }
 
     private void saveBlogData(String title, String snippet, String link, String imageUrl) {
         try {
-            if (snippet.length() > 255) {
-                snippet = snippet.substring(0, 255);
-            }
-
             // 이미지 URL이 없으면 기본 이미지 사용
             if (imageUrl == null || imageUrl.isEmpty()) {
                 imageUrl = DEFAULT_IMAGE_URL;
@@ -167,9 +163,11 @@ public class SearchServicelmpl implements SearchService{
 
             // 데이터베이스에 저장
             blogRepository.save(blog);
+            // 저장 전 로그 출력
+            log.info("블로그 저장 완료: title={}, snippet={}, link={}, imageUrl={}", title, snippet, link, imageUrl);
 
         } catch (Exception e) {
-            log.error("Error during saveBlogData", e);
+            log.error("블로그 저장 문제 발생", e);
         }
     }
 
