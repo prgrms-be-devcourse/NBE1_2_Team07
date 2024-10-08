@@ -60,4 +60,11 @@ public class InterestServiceImpl implements InterestService{
         filteredBlogRepository.save(filteredBlog);
         log.info("FilteredBlog 저장 완료: user={}, blog={}", userId, blogId);
     }
+
+    // filtered_blog id를 사용해 해당 blog id를 반환하는 메서드
+    public Long getBlogIdByFilteredBlogId(Long filteredBlogId) {
+        return filteredBlogRepository.findById(filteredBlogId)
+                .map(FilteredBlog::getBlog)
+                .orElseThrow(() -> new IllegalArgumentException("해당 filtered_blog id에 해당하는 블로그가 존재하지 않습니다."));
+    }
 }

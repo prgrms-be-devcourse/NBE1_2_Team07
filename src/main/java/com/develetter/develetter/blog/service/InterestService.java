@@ -10,4 +10,6 @@ public interface InterestService {
 
     // 사용자가 선택한 관심사 기반으로 랜덤 블로그 글을 반환하는 메서드
     Blog getRandomBlogBySearchQuery(Long userId, String searchQuery);
+
+    Long getBlogIdByFilteredBlogId(Long filteredBlogId);
 }
