@@ -10,20 +10,14 @@ import lombok.Setter;
 @Getter @Setter
 @NoArgsConstructor
 public class SignupRequestDto {
-    @NotBlank
-    private String id;
-
-    @NotBlank
-    @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]{8,13}$")
-    private String password;
-
     @Email
     @NotBlank
     private String email;
 
     @NotBlank
-    private String certificationNumber;
+    @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]{8,13}$")
+    private String password;
 
-    @Pattern(regexp = "^(ROLE_USER|ROLE_ADMIN)$")
-    private String role;
+    @NotBlank
+    private String certificationNumber;
 }

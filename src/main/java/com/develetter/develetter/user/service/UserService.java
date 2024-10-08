@@ -13,5 +13,4 @@ public interface UserService {
     ResponseEntity<? super SigninResponseDto> signIn(SigninRequestDto dto);
     ResponseEntity<? super DeleteIdResponseDto> deleteId(DeleteIdRequestDto dto);
     Long getUserIdByEmail(String email);
-//    ResponseEntity<? super OAuthLoginResponseDto> oAuthLogin(OAuthLoginRequestDto dto);
 }

@@ -6,13 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-//todo
 @Getter
 @NoArgsConstructor
 public class CheckCertificationRequestDto {
-    @NotBlank
-    private String id;
-
     @Email
     @NotBlank
     private String email;

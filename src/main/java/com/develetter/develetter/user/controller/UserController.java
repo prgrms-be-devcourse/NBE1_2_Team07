@@ -27,7 +27,7 @@ public class UserController {
     @PostMapping("/id-check")
     public ResponseEntity<? super IdCheckResponseDto> idCheck(@RequestBody @Valid IdCheckRequestDto requestBody) {
         ResponseEntity<? super IdCheckResponseDto> response= userService.idCheck(requestBody);
-        log.info("[idCheck]: {id:" + requestBody.getId()+ "}");
+        log.info("[idCheck]: {id:" + requestBody.getEmail()+ "}");
         return response;
     }
 
@@ -39,7 +39,7 @@ public class UserController {
     @PostMapping("/email-certification")
     public ResponseEntity<? super EmailCertificationResponseDto> emailCertification(@RequestBody @Valid EmailCertificationRequestDto requestBody) {
         ResponseEntity<? super EmailCertificationResponseDto> response= userService.emailCertification(requestBody);
-        log.info("[emailCertification]: {id: " + requestBody.getId() + ", email: " + requestBody.getEmail() + "}");
+        log.info("[emailCertification]: {id: " + requestBody.getEmail() + ", email: " + requestBody.getEmail() + "}");
         return response;
     }
 
@@ -51,7 +51,7 @@ public class UserController {
     @PostMapping("/check-certification")
     public ResponseEntity<? super CheckCertificationResponseDto> checkCertification(@RequestBody @Valid CheckCertificationRequestDto requestBody) {
         ResponseEntity<? super CheckCertificationResponseDto> response= userService.checkCertification(requestBody);
-        log.info("[checkCertification]: {id: " + requestBody.getId() + ", email: " + requestBody.getEmail() + ", certificationNumber: " + requestBody.getCertificationNumber() + "}");
+        log.info("[checkCertification]: {id: " + requestBody.getEmail() + ", email: " + requestBody.getEmail() + ", certificationNumber: " + requestBody.getCertificationNumber() + "}");
         return response;
     }
 
@@ -63,7 +63,7 @@ public class UserController {
     @PostMapping("/sign-up")
     public ResponseEntity<? super SignupResponseDto> signUp(@RequestBody @Valid SignupRequestDto requestBody) {
         ResponseEntity<? super SignupResponseDto> response= userService.signUp(requestBody);
-        log.info("[signUp]: {id: " + requestBody.getId() + ", password: " + requestBody.getPassword() + ", email: " + requestBody.getEmail() + ", certificationNumber: " + requestBody.getCertificationNumber() + ", role: " + requestBody.getRole() + "}");
+        log.info("[signUp]: {id: " + requestBody.getEmail() + ", password: " + requestBody.getPassword() + ", email: " + requestBody.getEmail() + ", certificationNumber: " + requestBody.getCertificationNumber() + "}");
         return response;
     }
 
@@ -75,7 +75,7 @@ public class UserController {
     @PostMapping("/sign-in")
     public ResponseEntity<? super SigninResponseDto> signIn(@RequestBody @Valid SigninRequestDto requestBody) {
         ResponseEntity<? super SigninResponseDto> response= userService.signIn(requestBody);
-        log.info("[signIn]: {id: " + requestBody.getId() + ", password: " + requestBody.getPassword() + "}");
+        log.info("[signIn]: {id: " + requestBody.getEmail() + ", password: " + requestBody.getPassword() + "}");
         return response;
     }
 
@@ -87,7 +87,7 @@ public class UserController {
     @PostMapping("/delete-user")
     public ResponseEntity<? super DeleteIdResponseDto> deleteUser(@RequestBody @Valid DeleteIdRequestDto requestBody) {
         ResponseEntity<? super DeleteIdResponseDto> response= userService.deleteId(requestBody);
-        log.info("[deleteUser]: {id: " + requestBody.getId() + ", password: " + requestBody.getPassword() + "}");
+        log.info("[deleteUser]: {id: " + requestBody.getEmail() + ", password: " + requestBody.getPassword() + "}");
         return response;
     }
 

@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<? super IdCheckResponseDto> idCheck(IdCheckRequestDto dto) {
         try {
-            String accountId = dto.getId();
+            String accountId = dto.getEmail();
             boolean isExistId = userRepository.existsByAccountId(accountId);
             if (isExistId) return IdCheckResponseDto.duplicateId();  // 중복된 ID인 경우 응답
         } catch (Exception e) {
@@ -64,8 +64,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<? super EmailCertificationResponseDto> emailCertification(EmailCertificationRequestDto dto) {
         try {
-            String accountId = dto.getId();
             String email = dto.getEmail();
+            String accountId = email;
 //
             //todo  --> 아이디 중복확인을 건너뛰고 이메일 인증을 진행할수있는 회원이 있기에 남겨두기로 결정
             // 중복된 ID인지 확인
@@ -97,9 +97,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<? super CheckCertificationResponseDto> checkCertification(CheckCertificationRequestDto dto) {
         try {
-            String accountId = dto.getId();
             String email = dto.getEmail();
             String certificationNumber = dto.getCertificationNumber();
+            String accountId = email;
 
             // 인증 엔티티 조회
             CertificationEntity certificationEntity = certificationRepository.findByAccountId(accountId);
@@ -126,11 +126,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<? super SignupResponseDto> signUp(SignupRequestDto dto) {
         try {
-            String accountId = dto.getId();
+            String email = dto.getEmail();
+            String accountId = email;
+
             boolean isExistId = userRepository.existsByAccountId(accountId);
             if (isExistId) return SignupResponseDto.duplicateId();  // 중복된 ID 확인
 
-            String email = dto.getEmail();
             String certificationNumber = dto.getCertificationNumber();
 
             // 인증 번호 확인
@@ -144,20 +145,10 @@ public class UserServiceImpl implements UserService {
             String encodedPassword = passwordEncoder.encode(password);
             dto.setPassword(encodedPassword);
 
-            String role = dto.getRole();
+            UserEntity userEntity = UserEntity.builder().accountId(accountId).password(encodedPassword).email(email).type("general").role(Role.USER).build();
+            userRepository.save(userEntity);
 
-            //유저 확인
-            if (!role.equals(Role.USER) && !role.equals(Role.ADMIN))
-                return SignupResponseDto.wrongRole();
-
-            if (role.equals(Role.USER)) {
-                UserEntity userEntity = UserEntity.builder().accountId(accountId).password(encodedPassword).email(email).type("general").role(Role.USER).build();
-                userRepository.save(userEntity);
-            } else if (role.equals(Role.ADMIN)) {
-                UserEntity userEntity = UserEntity.builder().accountId(accountId).password(encodedPassword).email(email).type("general").role(Role.ADMIN).build();
-                userRepository.save(userEntity);
-            }
-            // 인증 엔티티 삭제(계속 남겨둘수도있음)
+            // 인증 엔티티 삭제
             certificationRepository.deleteByAccountId(accountId);
         } catch (Exception e) {
             log.info("회원 가입 실패: {}", e);
@@ -178,7 +169,7 @@ public class UserServiceImpl implements UserService {
         String role = "ROLE_ANONYMOUS";
 
         try {
-            String accountId = dto.getId();
+            String accountId = dto.getEmail();
             UserEntity userEntity = userRepository.findByAccountId(accountId);
             if (userEntity == null) return SigninResponseDto.signInFail();  // 사용자 조회 실패
 
@@ -211,7 +202,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<? super DeleteIdResponseDto> deleteId(DeleteIdRequestDto dto) {
         try {
-            String accountId = dto.getId();
+            String accountId = dto.getEmail();
             UserEntity userEntity = userRepository.findByAccountId(accountId);
             if (userEntity == null) return DeleteIdResponseDto.idNotFound();  // 사용자 조회 실패
 
@@ -224,9 +215,8 @@ public class UserServiceImpl implements UserService {
             // 사용자 엔티티 및 인증 엔티티 삭제
             userRepository.delete(userEntity);
             certificationRepository.deleteByAccountId(accountId);
-
         } catch (Exception e) {
-            log.info("회원 삭제 실패: {}",e);
+            log.info("회원 삭제 실패: {}", e);
             return DeleteIdResponseDto.databaseError();  // 데이터베이스 오류 처리
         }
         return DeleteIdResponseDto.success();  // 삭제 성공 응답

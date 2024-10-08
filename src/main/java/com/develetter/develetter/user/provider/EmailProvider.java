@@ -16,7 +16,7 @@ public class EmailProvider {
 
     private final JavaMailSender javaMailSender;  // 이메일 전송을 위한 JavaMailSender 객체
     private final TemplateEngine templateEngine;  // Thymeleaf 템플릿 엔진
-    private final String SUBJECT = "[Develetter] 인증 메일";  // 이메일 제목
+    private final String SUBJECT = "[develetter] 인증 메일";  // 이메일 제목
 
     /**
      * 인증 이메일을 전송하는 메서드.
