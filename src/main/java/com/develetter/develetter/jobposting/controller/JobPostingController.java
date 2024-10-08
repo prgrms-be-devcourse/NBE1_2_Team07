@@ -31,13 +31,6 @@ public class JobPostingController {
         return new ApiResponseDto<>(200, "성공");
     }
 
-    @GetMapping("/testFilter")
-    public ApiResponseDto<Void> callTestFilter() {
-        jobPostingService.filterJobPostingByKeywords(1L);
-
-        return new ApiResponseDto<>(200, "성공");
-    }
-
     @PostMapping("/runJob")
     public ApiResponseDto<Void> runJob(@RequestParam("userId") Long userId) throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
         // JobParameters 설정
