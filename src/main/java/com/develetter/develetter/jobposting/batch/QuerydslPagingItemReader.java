@@ -1,11 +1,14 @@
 package com.develetter.develetter.jobposting.batch;
 
+import com.develetter.develetter.jobposting.entity.JobPosting;
+import com.develetter.develetter.jobposting.entity.QJobPosting;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
+import lombok.Setter;
 import org.springframework.batch.item.database.AbstractPagingItemReader;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.util.ClassUtils;
@@ -23,7 +26,9 @@ public class QuerydslPagingItemReader<T> extends AbstractPagingItemReader<T> {
     protected EntityManagerFactory entityManagerFactory;
     protected EntityManager entityManager;
     protected Function<JPAQueryFactory, JPAQuery<T>> queryFunction;
-    protected boolean transacted = true; // default value
+    @Setter
+    protected boolean transacted = false; // default value = true
+    private Long lastId;
 
     protected QuerydslPagingItemReader() {
         setName(ClassUtils.getShortName(QuerydslPagingItemReader.class));
@@ -46,16 +51,6 @@ public class QuerydslPagingItemReader<T> extends AbstractPagingItemReader<T> {
         setTransacted(transacted);
     }
 
-    /**
-     * Reader의 트랜잭션격리 옵션 <br/>
-     * - false: 격리 시키지 않고, Chunk 트랜잭션에 의존한다 <br/>
-     * (hibernate.default_batch_fetch_size 옵션 사용가능) <br/>
-     * - true: 격리 시킨다 <br/>
-     * (Reader 조회 결과를 삭제하고 다시 조회했을때 삭제된게 반영되고 조회되길 원할때 사용한다.)
-     */
-    public void setTransacted(boolean transacted) {
-        this.transacted = transacted;
-    }
 
     @Override
     protected void doOpen() throws Exception {
@@ -68,17 +63,25 @@ public class QuerydslPagingItemReader<T> extends AbstractPagingItemReader<T> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     protected void doReadPage() {
         EntityTransaction tx = getTxOrNull();
 
         JPQLQuery<T> query = createQuery()
-                .offset(getPage() * getPageSize())
+                .where(lastId != null ? QJobPosting.jobPosting.id.gt(lastId) : null)
                 .limit(getPageSize());
 
         initResults();
 
         fetchQuery(query, tx);
+
+        if (!results.isEmpty()) {
+            T lastEntity = results.get(results.size() - 1);
+            lastId = extractIdFromEntity(lastEntity);
+        }
+    }
+
+    protected Long extractIdFromEntity(T entity) {
+        return ((JobPosting) entity).getId();
     }
 
     protected EntityTransaction getTxOrNull() {

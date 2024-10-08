@@ -43,7 +43,7 @@ public class JobPostingBatch {
     private final JPAQueryFactory queryFactory;
     private final EntityManagerFactory emf;
 
-    private static final int chunkSize = 10;
+    private static final int chunkSize = 100;
 
     @Bean
     public JobExecutionListener jobExecutionListener() {
@@ -89,10 +89,10 @@ public class JobPostingBatch {
 
 
 //    @Bean
-//    public RepositoryItemReader<JobPosting> itemReader() {
+//    public RepositoryItemReader<JobPosting> reader() {
 //        return new RepositoryItemReaderBuilder<JobPosting>()
 //                .name("jobPostingItemReader")
-//                .pageSize(10)
+//                .pageSize(chunkSize)
 //                .repository(jobPostingRepository)
 //                .methodName("findAll") // 모든 JobPosting을 조회
 //                .sorts(Map.of("id", Sort.Direction.ASC))
@@ -155,7 +155,6 @@ public class JobPostingBatch {
             }
         };
     }
-
 
     private List<String> parseKeywords(String keywords) {
         if (keywords == null || keywords.isBlank()) {
