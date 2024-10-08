@@ -20,7 +20,7 @@ public class UserEntity extends BaseEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "account_id", nullable = false, length = 30)
+    @Column(name = "account_id", nullable = false, length = 30, unique = true)
     private String accountId;
 
     @Column(name = "password", nullable = false, length = 255)
