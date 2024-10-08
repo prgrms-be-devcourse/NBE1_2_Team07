@@ -1,8 +1,15 @@
 package com.develetter.develetter.blog.Util;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class BlogUtil {
 
-    // 블로그 링크가 세부 페이지인지 확인하는 메서드
+    // 블로그 키워드 목록을 리스트로 변환하는 메서드
+    public static List<String> getBlogKeywordsAsList(String blogKeywords) {
+        return Arrays.asList(blogKeywords.split(",")); // 쉼표로 구분된 키워드를 리스트로 변환
+    }
+
     public static boolean isBlogDetailPage(String link) {
         if (link.contains("toss.tech")) {
             return link.contains("/article/");
@@ -28,30 +35,70 @@ public class BlogUtil {
             if (link.matches("https://d2\\.naver\\.com/(helloworld|news)(\\?.*)?$")) {
                 return false;
             }
-
             if (link.matches("https://d2\\.naver\\.com/(helloworld|news)/\\d+")) {
                 return true;
             }
         }
 
         if (link.contains("tech.kakao.com")) {
-            if (link.matches("https://tech\\.kakao\\.com/blog$")) {
-                return false;
-            }
-            if (link.matches("https://tech\\.kakao\\.com/posts/\\d+")) {
-                return true;
-            }
+            return link.matches("https://tech\\.kakao\\.com/posts/\\d+");
         }
 
         if (link.contains("techblog.lycorp.co.jp")) {
-            if (link.matches("https://techblog\\.lycorp\\.co\\.jp/ko$")) {
+            return link.matches("https://techblog\\.lycorp\\.co\\.jp/ko/.+");
+        }
+
+        if (link.contains("medium.com/musinsa-tech")) {
+            if (link.equals("https://medium.com/musinsa-tech")) {
                 return false;
             }
-            if (link.matches("https://techblog\\.lycorp\\.co\\.jp/ko/.+")) {
+            if (link.matches("https://medium\\.com/musinsa-tech/.+")) {
                 return true;
             }
         }
 
+        if (link.contains("blog.wishket.com")) {
+            if (link.matches("https://blog\\.wishket\\.com/condition-filtering-post(/\\?.*)?")) {
+                return false; // 목록 페이지
+            }
+            if (link.matches("https://blog\\.wishket\\.com/.+")) {
+                return true; // 상세 페이지
+            }
+        }
+
+        if (link.contains("insight.infograb.net")) {
+            if (link.matches("https://insight\\.infograb\\.net/blog(/page/\\d+)?")) {
+                return false; // 목록 페이지
+            }
+            if (link.matches("https://insight\\.infograb\\.net/blog/\\d{4}/\\d{2}/\\d{2}/.+")) {
+                return true; // 상세 페이지
+            }
+        }
+
+        if (link.contains("techblog.woowahan.com")) {
+            if (link.matches("https://techblog\\.woowahan\\.com(/\\?paged=\\d+(&pcat=.*)?)?")) {
+                return false; // 목록 페이지
+            }
+            if (link.matches("https://techblog\\.woowahan\\.com/\\d+/")) {
+                return true; // 상세 페이지
+            }
+        }
+
+        if (link.contains("developers-kr.googleblog.com")) {
+            if (link.matches("https://developers-kr\\.googleblog\\.com(/|/search/label/.+)?")) {
+                return false; // 목록 페이지
+            }
+        }
+
+        if (link.contains("blog.banksalad.com/tech")) {
+            if (link.equals("https://blog.banksalad.com/tech") ||
+                    link.matches("https://blog\\.banksalad\\.com/tech(/page/\\d+)?")) {
+                return false;
+            }
+            return true;
+        }
         return true;
     }
 }
+
+

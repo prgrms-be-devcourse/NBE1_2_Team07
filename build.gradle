@@ -44,12 +44,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
 	implementation 'io.github.cdimascio:dotenv-java:2.2.0'
-	implementation 'io.netty:netty-resolver-dns-native-macos:4.1.65.Final:osx-x86_64'
+	implementation 'io.netty:netty-resolver-dns-native-macos:4.1.104.Final:osx-x86_64'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
-
-
-
+	runtimeOnly 'io.netty:netty-resolver-dns-native-macos:4.1.104.Final:osx-aarch_64'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'com.mysql:mysql-connector-j'
