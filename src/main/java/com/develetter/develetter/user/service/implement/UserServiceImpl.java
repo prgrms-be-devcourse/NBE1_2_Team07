@@ -19,6 +19,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 /**
  * 사용자 인증, 회원 가입, 이메일 인증 등을 처리하며 예외 상황에 대한 대응 로직도 포함.
  */
@@ -157,6 +159,34 @@ public class UserServiceImpl implements UserService {
         return SignupResponseDto.success();  // 회원 가입 성공 응답
     }
 
+    @Override
+    public ResponseEntity<? super EditEmailResponseDto> editEmail(EditEmailRequestDto dto) {
+        try {
+            String accountId = dto.getOauthId();
+            UserEntity userEntity = userRepository.findByAccountId(accountId);
+
+            String newEmail = dto.getNewEmail();
+
+            UserEntity updatedUserEntity = UserEntity.builder()
+                    .id(userEntity.getId())
+                    .accountId(userEntity.getAccountId())
+                    .password(userEntity.getPassword())
+                    .email(newEmail)
+                    .type(userEntity.getType())
+                    .role(userEntity.getRole())
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now()) // 업데이트 시간 변경
+                    .build();
+
+            userRepository.save(updatedUserEntity);
+        } catch (Exception e) {
+            log.info("이메일 수정 실패: {}", e);
+            return EditEmailResponseDto.validationFail();
+        }
+        return EditEmailResponseDto.success();  // 이메일 수정 성공
+
+    }
+
     /**
      * 로그인 처리 메서드.
      *
@@ -212,9 +242,25 @@ public class UserServiceImpl implements UserService {
             boolean isMatched = passwordEncoder.matches(password, encodedPassword);
             if (!isMatched) return DeleteIdResponseDto.idNotMatching();  // 비밀번호 불일치
 
-            // 사용자 엔티티 및 인증 엔티티 삭제
-            userRepository.delete(userEntity);
+            UserEntity updatedUserEntity = UserEntity.builder()
+                    .id(userEntity.getId())
+                    .accountId(userEntity.getAccountId() + "-deleted")
+                    .password("deleted-password")
+                    .email(userEntity.getEmail() + "-deleted")
+                    .type(userEntity.getType())
+                    .role(userEntity.getRole())
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now()) // 업데이트 시간 변경
+                    .build();
+
+            userRepository.save(updatedUserEntity);
             certificationRepository.deleteByAccountId(accountId);
+
+
+//            // 사용자 엔티티 및 인증 엔티티 삭제
+//            userRepository.delete(userEntity);
+//            certificationRepository.deleteByAccountId(accountId);
+
         } catch (Exception e) {
             log.info("회원 삭제 실패: {}", e);
             return DeleteIdResponseDto.databaseError();  // 데이터베이스 오류 처리

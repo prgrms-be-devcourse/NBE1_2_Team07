@@ -1,5 +1,6 @@
 package com.develetter.develetter.user.controller;
 
+import com.develetter.develetter.user.global.dto.LogInResponseDto;
 import com.develetter.develetter.user.global.dto.request.*;
 import com.develetter.develetter.user.global.dto.response.*;
 import com.develetter.develetter.user.service.UserService;
@@ -96,6 +97,13 @@ public class UserController {
         Long userId = userService.getUserIdByEmail(email);
         log.info("[getIdByEmail]: email: " + email);
         return ResponseEntity.ok(userId);
+    }
+
+    @PostMapping("/edit-email")
+    public ResponseEntity<? super EditEmailResponseDto> editEmail(@RequestBody @Valid EditEmailRequestDto requestBody) {
+        ResponseEntity<? super EditEmailResponseDto> response = userService.editEmail(requestBody);
+        log.info("[editEmail]: {id: " + requestBody.getOauthId() + ", newEmail: " + requestBody.getNewEmail() + "}");
+        return response;
     }
 
 }
