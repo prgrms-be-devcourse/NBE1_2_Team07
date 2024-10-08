@@ -101,7 +101,7 @@ public class ConferenceCalendarService {
                     .append(conference.name()).append(" | ").append(conference.host()).append("</a></h4>")
                     .append("<p style='margin: 5px 0;'>신청 기간: ").append(conference.applyStartDate()).append(" ~ ").append(conference.applyEndDate()).append("</p>")
                     .append("<p style='margin: 5px 0;'>진행 기간: ").append(conference.startDate()).append(" ~ ").append(conference.endDate()).append("</p>")
-                    .append("<a href='").append(conference.url()).append("' style='color: #553830; text-decoration: none;'>자세히 보기&rarr;</a>")
+                    .append("<a href='").append(conference.url()).append("' style='color: #553830; text-decoration: none;'>&rarr; 자세히 보기</a>")
                     .append("</div>");
         }
 
