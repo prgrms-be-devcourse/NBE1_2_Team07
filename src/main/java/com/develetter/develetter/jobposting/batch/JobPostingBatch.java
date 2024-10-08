@@ -1,8 +1,8 @@
 package com.develetter.develetter.jobposting.batch;
 
-import com.develetter.develetter.jobposting.JobPostingKeyword;
-import com.develetter.develetter.jobposting.UserFilter;
-import com.develetter.develetter.jobposting.UserFilterRepository;
+import com.develetter.develetter.userfilter.entity.JobPostingKeyword;
+import com.develetter.develetter.userfilter.entity.UserFilter;
+import com.develetter.develetter.userfilter.repository.UserFilterRepository;
 import com.develetter.develetter.jobposting.entity.FilteredJobPosting;
 import com.develetter.develetter.jobposting.entity.JobPosting;
 import com.develetter.develetter.jobposting.repository.FilteredJobPostingRepository;
