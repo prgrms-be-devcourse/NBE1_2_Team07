@@ -3,6 +3,7 @@ package com.develetter.develetter.mail.service;
 import com.develetter.develetter.blog.dto.BlogDto;
 import com.develetter.develetter.blog.service.InterestService;
 import com.develetter.develetter.mail.dto.MailResDto;
+import com.develetter.develetter.user.service.UserService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class AsyncMailService {
     private final SpringTemplateEngine templateEngine;
     private final MailService mailService;
     private final InterestService blogService;
+    private final UserService userService;
 
     //메일 전송 메서드
     @Async
@@ -36,8 +38,7 @@ public class AsyncMailService {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         try {
             // user 테이블에서 userId로 email 찾기
-            String email = "dkdudab@hanmail.net";
-                    //mailResDto.userId();
+            String email = userService.getEmailByUserId(mailResDto.userId());
 
             //filtered_job_posting 테이블에서 filtered_job_posting_id로 채용공고 리스트 찾기
 
