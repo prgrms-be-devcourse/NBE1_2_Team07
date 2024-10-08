@@ -15,12 +15,7 @@
             <div style="background-color: #ffffff; padding: 20px; margin-bottom: 20px; border-radius: 5px;">
                 <h2 style="color: #3498db;">맞춤 채용 공고</h2>
                 <p style="color: gray"> 설정하신 관심 분야를 반영하여 제공하는 채용 공고입니다.</p>
-                <ul style="padding-left: 20px;">
-                    <!-- 여기에 API에서 가져온 맞춤 채용공고 데이터를 삽입하세요 -->
-                    <li>{{채용공고_1}}</li>
-                    <li>{{채용공고_2}}</li>
-                    <li>{{채용공고_3}}</li>
-                </ul>
+                <div th:utext="${jobPostingHtml}"></div>
             </div>
 
             <div style="background-color: #ffffff; padding: 20px; margin-bottom: 20px; border-radius: 5px;">
