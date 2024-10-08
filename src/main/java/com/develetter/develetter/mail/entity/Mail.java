@@ -35,6 +35,15 @@ public class Mail extends BaseEntity {
     @Column(name = "deleted", nullable = false)
     private Boolean deleted = false;
 
+    public Mail(Long userId, Long filteredJobPostingId, Long filteredBlogId) {
+        this.userId = userId;
+        this.filteredJobPostingId = filteredJobPostingId;
+        this.filteredBlogId = filteredBlogId;
+        this.sendingCheck = false;
+        this.deleted = false;
+    }
+
+
     public void updateMailCheck() {
         this.sendingCheck = true;
     }

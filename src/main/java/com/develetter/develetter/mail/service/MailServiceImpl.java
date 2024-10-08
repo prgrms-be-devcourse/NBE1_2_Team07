@@ -36,22 +36,21 @@ public class MailServiceImpl implements MailService {
     }
 
 
+    @Transactional
     @Override
     public void createMails() {
-        // Step 1: JOIN 쿼리로 모든 userId와 연관된 데이터를 가져옴
-//        List<Object[]> resultList = mailRepository.findAllUserWithFilteredData();
-//
-//        // Step 2: 결과 데이터를 mail 테이블에 저장
-//        for (Object[] result : resultList) {
-//            Long userId = (Long) result[0];
-//            Long filteredJobPostingId = (Long) result[1];
-//            Long filteredBlogId = (Long) result[2];
-//
-        //추후에 필요하지 않다고 판단되면 entity로 진행예정
-//            MailRegisterDto mailRegisterDto = new MailRegisterDto(userId, filteredJobPostingId, filteredBlogId);
-//            Mail mail = Converter.toEntity(mailRegisterDto);
-//            mailRepository.save(mail);
-//        }
+        //Step 1: JOIN 쿼리로 모든 userId와 연관된 데이터를 가져옴
+        List<Object[]> resultList = mailRepository.findAllUserWithFilteredData();
+
+        // Step 2: 결과 데이터를 mail 테이블에 저장
+        for (Object[] result : resultList) {
+            Long userId = (Long) result[0];
+            Long filteredJobPostingId = (Long) result[1];
+            Long filteredBlogId = (Long) result[2];
+
+            Mail mail = new Mail(userId, filteredJobPostingId, filteredBlogId);
+            mailRepository.save(mail);
+        }
     }
 
     @Transactional
