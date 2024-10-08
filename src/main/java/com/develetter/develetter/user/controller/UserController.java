@@ -90,12 +90,4 @@ public class UserController {
         log.info("[deleteUser]: {id: " + requestBody.getEmail() + ", password: " + requestBody.getPassword() + "}");
         return response;
     }
-
-    @PostMapping("/get-id")
-    public ResponseEntity<Long> getIdByEmail(@RequestParam String email) {
-        Long userId = userService.getUserIdByEmail(email);
-        log.info("[getIdByEmail]: email: " + email);
-        return ResponseEntity.ok(userId);
-    }
-
 }
