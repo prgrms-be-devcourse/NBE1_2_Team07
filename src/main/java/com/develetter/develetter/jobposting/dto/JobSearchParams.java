@@ -1,5 +1,8 @@
 package com.develetter.develetter.jobposting.dto;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public record JobSearchParams(
         String keywords,
         Integer bbs_gb,
@@ -25,10 +28,11 @@ public record JobSearchParams(
         Integer count,
         String sort
 ) {
-    public static JobSearchParams defaultParams(int start) {
+    public static JobSearchParams defaultParams(int start, String published_min) {
+
         return new JobSearchParams(
                 null, null, null, null, null, null, null, null,
-                null, "84+86+87", null, null, "count", null, null, null,
+                null, "84+86+87", null, null, "posting-date+expiration-date+count", null, published_min, null,
                 null, null, null, null, start, 100, null);
     }
 }
