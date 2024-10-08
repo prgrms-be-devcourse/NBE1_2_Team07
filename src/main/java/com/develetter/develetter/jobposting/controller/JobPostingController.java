@@ -6,10 +6,12 @@ import com.develetter.develetter.jobposting.scheduler.JobPostingSchedulerImpl;
 import com.develetter.develetter.jobposting.service.JobPostingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.core.launch.JobOperator;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.batch.core.*;
+import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
+import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
+import org.springframework.batch.core.repository.JobRestartException;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/jobposting")
@@ -19,7 +21,8 @@ public class JobPostingController {
 
     private final JobPostingService jobPostingService;
     private final JobPostingSchedulerImpl jobPostingSchedulerImpl;
-    private final JobOperator jobOperator;
+    private final JobLauncher jobLauncher;
+    private final Job filterJobPostingsJob;
 
     @GetMapping("/testCall")
     public ApiResponseDto<JobSearchResDto> callJobSearchApi() {
@@ -35,10 +38,19 @@ public class JobPostingController {
         return new ApiResponseDto<>(200, "성공");
     }
 
-//    @GetMapping("/startJob")
-//    public String startJob() throws JobInstanceAlreadyExistsException, NoSuchJobException, JobParametersInvalidException {
-//        String jobParameters = "time=" + System.currentTimeMillis();
-//        jobOperator.start("jobFilteringJob", jobParameters);
-//        return "Job started";
-//    }
+    @PostMapping("/runJob")
+    public ApiResponseDto<Void> runJob(@RequestParam("userId") Long userId) throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
+        // JobParameters 설정
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addLong("userId", userId)  // userId를 파라미터로 전달
+                .toJobParameters();
+
+        // Job 실행
+        JobExecution jobExecution = jobLauncher.run(filterJobPostingsJob, jobParameters);
+        System.out.println("job start");
+
+        // Job 실행 상태 확인 및 응답
+        return new ApiResponseDto<>(200, "성공");
+
+    }
 }
