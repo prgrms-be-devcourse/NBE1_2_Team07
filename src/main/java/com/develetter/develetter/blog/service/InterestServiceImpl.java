@@ -1,5 +1,6 @@
 package com.develetter.develetter.blog.service;
 
+import com.develetter.develetter.blog.dto.BlogDto;
 import com.develetter.develetter.blog.entity.Blog;
 import com.develetter.develetter.blog.entity.FilteredBlog;
 import com.develetter.develetter.blog.repository.BlogRepository;
@@ -61,10 +62,14 @@ public class InterestServiceImpl implements InterestService{
         log.info("FilteredBlog 저장 완료: user={}, blog={}", userId, blogId);
     }
 
-    // filtered_blog id를 사용해 해당 blog id를 반환하는 메서드
-    public Long getBlogIdByFilteredBlogId(Long filteredBlogId) {
-        return filteredBlogRepository.findById(filteredBlogId)
-                .map(FilteredBlog::getBlog)
-                .orElseThrow(() -> new IllegalArgumentException("해당 filtered_blog id에 해당하는 블로그가 존재하지 않습니다."));
+    // 필터된 블로그 id로 blogDto 반환하는 메서드
+    public BlogDto getBlogByFilteredBlogId(Long filteredBlogId) {
+        FilteredBlog filteredBlog = filteredBlogRepository.findById(filteredBlogId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 필터된 블로그가 없습니다."));
+
+        Blog blog = blogRepository.findById(filteredBlog.getBlog())
+                .orElseThrow(() -> new IllegalArgumentException("해당 블로그가 없습니다."));
+
+        return new BlogDto(blog.getTitle(), blog.getLink());
     }
 }
