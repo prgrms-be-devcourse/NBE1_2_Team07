@@ -34,7 +34,7 @@ public class ConferenceCalendarService {
     public String generateCalendarHtml(List<ConferenceResDto> conferenceList) {
         StringBuilder htmlContent = new StringBuilder();
 
-        htmlContent.append("<div style='max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;'>")
+        htmlContent.append("<div style='max-width: 950px; margin: 0 auto; font-family: Arial, sans-serif;'>")
                 .append("<div style= 'background-color: #553830; color: white; padding: 20px; text-align: center; font-size: large; border-radius: 10px 10px 0 0 ;'>")
                 .append("<h3>컨퍼런스 신청 일정</h3></div>")
                 .append("<table style='width: 100%; border-collapse: collapse;'>")
