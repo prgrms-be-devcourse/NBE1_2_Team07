@@ -44,7 +44,6 @@ public class MailServiceImpl implements MailService {
     public void createMails() {
         //User 테이블의 모든 id 가져오기
         List<UserEntity> userEntityList = userService.getAllUsers();
-        System.out.println(userEntityList);
 
         //Mail 테이블에 저장
         for (UserEntity user : userEntityList) {
