@@ -22,17 +22,21 @@ public class InterestServiceImpl implements InterestService{
 
     // 관심사 목록을 반환하는 메서드, 이곳에서 관심사 키워드를 관리함
     public List<String> getInterests() {
-        return List.of("CSS", "Vue", "TypeScript" /*"Html","Javascript", "Next.js",
-                "Swift", "Kotlin", "Java", "Spring", "Node.js", "Python"*/);  // 관심사 목록
+        return List.of("Java", "JavaScript", "AI"/*,"CSS", "TypeScript", "Html","Javascript", "Next.js",
+                "Swift", "Kotlin", "Java", "Spring", "Node.js", "Python"*/);
     }
 
     // 사용자가 선택한 관심사 기반으로 받지 않은 랜덤 블로그 글을 반환
     public Blog getRandomBlogBySearchQuery(Long userId, String searchQuery) {
         List<Blog> blogs = blogRepository.findBlogsBySearchQuery(searchQuery);
 
+        // 검색된 블로그가 없는 경우 AI 관련 블로그 검색
         if (blogs.isEmpty()) {
-            log.info("해당 관심사에 맞는 블로그 글이 없습니다.");
-            return null;
+            blogs = blogRepository.findBlogsBySearchQuery("AI");
+            if (blogs.isEmpty()) {
+                log.info("AI 관련 블로그도 없습니다."); //주로 API 일일 할당량 관련 문제 발생할 시 이 오류가 발생
+                return null;
+            }
         }
 
         // 사용자가 받지 않은 블로그 필터링
@@ -40,9 +44,16 @@ public class InterestServiceImpl implements InterestService{
                 .filter(blog -> !filteredBlogRepository.existsByUserIdAndBlog(userId, blog.getId()))
                 .toList();
 
+        // 사용자가 받지 않은 블로그가 없는 경우, AI 관련 블로그 필터링
         if (unreceivedBlogs.isEmpty()) {
-            log.info("사용자가 받지 않은 블로그 글이 없습니다."); //추후 프론트에서 다른 관심사를 선택하시겠습니까? 와 같은 메시지 출력해줘도 좋을듯
-            return null;
+            unreceivedBlogs = blogRepository.findBlogsBySearchQuery("AI").stream()
+                    .filter(blog -> !filteredBlogRepository.existsByUserIdAndBlog(userId, blog.getId()))
+                    .toList();
+
+            if (unreceivedBlogs.isEmpty()) {
+                log.info("사용자가 받지 않은 AI 관련 블로그 글도 없습니다."); //이런 경우는 웬만하면 없을 것
+                return null;
+            }
         }
 
         // 여러 결과 중 하나를 랜덤으로 선택
@@ -63,13 +74,27 @@ public class InterestServiceImpl implements InterestService{
     }
 
     // 필터된 블로그 id로 blogDto 반환하는 메서드
-    public BlogDto getBlogByFilteredBlogId(Long filteredBlogId) {
-        FilteredBlog filteredBlog = filteredBlogRepository.findById(filteredBlogId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 필터된 블로그가 없습니다."));
+    public BlogDto getBlogByUserId(Long userId) {
+        // userId에 해당하는 가장 최근의 FilteredBlog를 조회
+        FilteredBlog filteredBlog = filteredBlogRepository.findTopByUserIdOrderByCreatedAtDesc(userId)
+                .orElse(null);
 
+        if (filteredBlog == null) {
+            log.info("해당 사용자에 대한 필터된 블로그가 없습니다.");
+            return null;
+        }
+
+        // 해당 블로그 정보 조회
         Blog blog = blogRepository.findById(filteredBlog.getBlog())
-                .orElseThrow(() -> new IllegalArgumentException("해당 블로그가 없습니다."));
+                .orElse(null);
 
+        if (blog == null) {
+            log.info("해당 블로그가 없습니다.");
+            return null;
+        }
+
+        // BlogDto로 반환
         return new BlogDto(blog.getTitle(), blog.getLink());
     }
 }
+
