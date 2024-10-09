@@ -19,6 +19,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * 사용자 인증, 회원 가입, 이메일 인증 등을 처리하며 예외 상황에 대한 대응 로직도 포함.
  */
@@ -226,5 +228,10 @@ public class UserServiceImpl implements UserService {
     public String getEmailByUserId(Long id) {
         UserEntity user = userRepository.findById(id);
         return user.getEmail();
+    }
+
+    @Override
+    public List<UserEntity> getAllUsers() {
+        return userRepository.findAll();
     }
 }

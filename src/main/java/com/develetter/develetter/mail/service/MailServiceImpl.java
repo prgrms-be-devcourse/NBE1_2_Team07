@@ -4,6 +4,8 @@ import com.develetter.develetter.mail.converter.Converter;
 import com.develetter.develetter.mail.dto.MailResDto;
 import com.develetter.develetter.mail.entity.Mail;
 import com.develetter.develetter.mail.repository.MailRepository;
+import com.develetter.develetter.user.global.entity.UserEntity;
+import com.develetter.develetter.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import java.util.Optional;
 public class MailServiceImpl implements MailService {
 
     private final MailRepository mailRepository;
+    private final UserService userService;
 
     @Override
     public List<MailResDto> getAllMails() {
@@ -39,16 +42,13 @@ public class MailServiceImpl implements MailService {
     @Transactional
     @Override
     public void createMails() {
-        //Step 1: JOIN 쿼리로 모든 userId와 연관된 데이터를 가져옴
-        List<Object[]> resultList = mailRepository.findAllUserWithFilteredData();
+        //User 테이블의 모든 id 가져오기
+        List<UserEntity> userEntityList = userService.getAllUsers();
+        System.out.println(userEntityList);
 
-        // Step 2: 결과 데이터를 mail 테이블에 저장
-        for (Object[] result : resultList) {
-            Long userId = (Long) result[0];
-            Long filteredJobPostingId = (Long) result[1];
-            Long filteredBlogId = (Long) result[2];
-
-            Mail mail = new Mail(userId, filteredJobPostingId, filteredBlogId);
+        //Mail 테이블에 저장
+        for (UserEntity user : userEntityList) {
+            Mail mail = new Mail(user.getId());
             mailRepository.save(mail);
         }
     }

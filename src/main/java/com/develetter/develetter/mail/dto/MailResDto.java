@@ -5,8 +5,6 @@ import java.time.LocalDate;
 public record MailResDto(
         Long id,
         Long userId,
-        Long filteredJobPostingId,
-        Long filteredBlogId,
         Boolean sendingCheck,
         Boolean deleted
 ) {

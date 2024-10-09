@@ -16,15 +16,16 @@ import java.util.List;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class MailSchedulerImpl implements MailScheduler {
     private final ConferenceCalendarService conferenceCalendarService;
     private final AsyncMailService asyncMailService;
     private final MailService mailService;
 
+
     @Override
     // 월요일 오전 8시 55분마다
     @Scheduled(cron = "0 50 8 * * MON")
+    @Transactional
     public void saveMails() {
         try {
             //메일 내용 저장
@@ -36,10 +37,9 @@ public class MailSchedulerImpl implements MailScheduler {
     }
 
     @Override
-    // 매분 10초마다
-    @Scheduled(cron = "10 * * * * *")
+
     // 월요일 오전 9시마다
-    //@Scheduled(cron = "0 0 9 * * MON")
+    @Scheduled(cron = "0 0 9 * * MON")
     public void sendingMails() {
         try {
 
@@ -61,8 +61,6 @@ public class MailSchedulerImpl implements MailScheduler {
     }
 
     @Override
-    // 매분 40초마다
-    @Scheduled(cron = "40 * * * * *")
     // 월요일 오전 9시 5분마다
     @Scheduled(cron = "0 5 9 * * MON")
     public void sendingFailedMails() {

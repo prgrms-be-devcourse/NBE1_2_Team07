@@ -10,8 +10,6 @@ public class Converter {
         return new MailResDto(
                 mail.getId(),
                 mail.getUserId(),
-                mail.getFilteredJobPostingId(),
-                mail.getFilteredBlogId(),
                 mail.getSendingCheck(),
                 mail.getDeleted()
         );

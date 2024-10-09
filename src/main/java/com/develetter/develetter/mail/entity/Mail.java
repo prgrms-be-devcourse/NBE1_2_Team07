@@ -23,22 +23,14 @@ public class Mail extends BaseEntity {
     @Column(name = "user_id", nullable = false)
     private Long userId;  // User 엔티티와 1:1 외래키 설정
 
-    @Column(name = "filtered_job_posting_id", nullable = false)
-    private Long filteredJobPostingId;  // FilteredJobPosting 엔티티와 1:1 외래키 설정
-
-    @Column(name = "filtered_blog_id", nullable = false)
-    private Long filteredBlogId;  // FilteredBlog 엔티티와 1:1 외래키 설정
-
     @Column(name = "sending_check", nullable = false)
     private Boolean sendingCheck = false;
 
     @Column(name = "deleted", nullable = false)
     private Boolean deleted = false;
 
-    public Mail(Long userId, Long filteredJobPostingId, Long filteredBlogId) {
+    public Mail(Long userId) {
         this.userId = userId;
-        this.filteredJobPostingId = filteredJobPostingId;
-        this.filteredBlogId = filteredBlogId;
         this.sendingCheck = false;
         this.deleted = false;
     }
