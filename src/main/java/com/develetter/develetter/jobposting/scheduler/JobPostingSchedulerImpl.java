@@ -8,6 +8,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 @Component
 @RequiredArgsConstructor
 public class JobPostingSchedulerImpl implements JobPostingScheduler {
@@ -24,12 +27,14 @@ public class JobPostingSchedulerImpl implements JobPostingScheduler {
 
         int startPage = 0;
 
-        while (true) {
+        String twoWeeksAgo = LocalDateTime.now()
+                .minusDays(14)
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-            JobSearchResDto jobSearchResDto = jobPostingService.searchJobs(startPage++);
+        while (true) {
+            JobSearchResDto jobSearchResDto = jobPostingService.searchJobs(startPage++, twoWeeksAgo);
 
             if (jobSearchResDto.jobs().count() < 100) break;
-
         }
     }
 

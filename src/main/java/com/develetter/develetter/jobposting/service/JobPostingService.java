@@ -1,18 +1,13 @@
 package com.develetter.develetter.jobposting.service;
 
+import com.develetter.develetter.jobposting.dto.JobPostingEmailDto;
 import com.develetter.develetter.jobposting.dto.JobSearchResDto;
-import com.develetter.develetter.jobposting.entity.FilteredJobPosting;
-import com.develetter.develetter.jobposting.entity.JobPosting;
 
 import java.util.List;
 
 public interface JobPostingService {
 
-    JobSearchResDto searchJobs(int startIdx);
+    JobSearchResDto searchJobs(int startIdx, String sevenDaysAgo);
 
-    void filterJobPostingByKeywords(Long userId);
-
-    void saveFilteredJobPostings(Long userId, List<Long> jobPostings);
-
-
+    List<JobPostingEmailDto> getFilteredJobPostingsByUserId(Long userId);
 }

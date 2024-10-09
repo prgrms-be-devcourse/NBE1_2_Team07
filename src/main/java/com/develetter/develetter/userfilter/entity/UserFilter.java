@@ -1,4 +1,4 @@
-package com.develetter.develetter.jobposting;
+package com.develetter.develetter.userfilter.entity;
 
 import com.develetter.develetter.global.entity.BaseEntity;
 import jakarta.persistence.*;

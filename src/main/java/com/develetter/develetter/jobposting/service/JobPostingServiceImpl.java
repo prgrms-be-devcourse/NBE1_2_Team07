@@ -1,10 +1,8 @@
 package com.develetter.develetter.jobposting.service;
 
 import com.develetter.develetter.global.util.DtoUtil;
-import com.develetter.develetter.jobposting.JobPostingKeyword;
-import com.develetter.develetter.jobposting.UserFilter;
-import com.develetter.develetter.jobposting.UserFilterRepository;
 import com.develetter.develetter.jobposting.converter.Converter;
+import com.develetter.develetter.jobposting.dto.JobPostingEmailDto;
 import com.develetter.develetter.jobposting.dto.JobSearchParams;
 import com.develetter.develetter.jobposting.dto.JobSearchResDto;
 import com.develetter.develetter.jobposting.entity.FilteredJobPosting;
@@ -12,8 +10,6 @@ import com.develetter.develetter.jobposting.entity.JobPosting;
 import com.develetter.develetter.jobposting.exception.JobSearchException;
 import com.develetter.develetter.jobposting.repository.FilteredJobPostingRepository;
 import com.develetter.develetter.jobposting.repository.JobPostingRepository;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,7 +21,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,22 +35,18 @@ public class JobPostingServiceImpl implements JobPostingService {
 
     private final WebClient webClient;
     private final JobPostingRepository jobPostingRepository;
-
-    // TODO 유저필터 레포지토리를 주입받지않고, 서비스를 주입받는게 좋지 않을까?
-    private final UserFilterRepository userFilterRepository;
-
     private final FilteredJobPostingRepository filteredJobPostingRepository;
 
     @Override
-    public JobSearchResDto searchJobs(int startPage) {
+    public JobSearchResDto searchJobs(int startPage, String sevenDaysAgo) {
         try {
-            Map<String, Object> params = DtoUtil.toMap(JobSearchParams.defaultParams(startPage));
+            Map<String, Object> params = DtoUtil.toMap(JobSearchParams.defaultParams(startPage, sevenDaysAgo));
 
             JobSearchResDto jobSearchResDto = webClient.get()
                     .uri(uriBuilder -> {
                         uriBuilder
                                 .scheme("https")  // 스키마 설정
-                                .host(baseUrl)  // 호스트 설정
+                                .host(baseUrl)    // 호스트 설정
                                 .path("/job-search")  // 경로 설정
                                 .queryParam("access-key", accessKey);  // 쿼리 파라미터 추가
                         params.forEach((key, value) -> {
@@ -76,9 +67,21 @@ public class JobPostingServiceImpl implements JobPostingService {
                 throw new JobSearchException("사람인 API에서 0개의 채용공고 응답이 왔습니다.");
             }
 
+//            long filteredCount = jobSearchResDto.jobs().job().stream()
+//                    .map(Converter::toEntity) // toEntity로 변환
+//                    .filter(jobPosting ->
+//                            jobPosting.getExperienceMin() >= 0 && jobPosting.getExperienceMin() <= 2 && // experience_min 필터
+//                                    jobPosting.getExperienceMax() >= 0 && jobPosting.getExperienceMax() <= 3)   // experience_max 필터
+//                    .count(); // 필터링된 개수 계산
+//
+//            System.out.println("필터링된 JobPosting 개수: " + filteredCount);
+
             List<JobPosting> jobPostings = jobSearchResDto.jobs().job().stream()
-                    .map(Converter::toEntity)
-                    .collect(Collectors.toList());
+                    .map(Converter::toEntity) // toEntity로 변환
+                    .filter(jobPosting ->
+                            jobPosting.getExperienceMin() >= 0 && jobPosting.getExperienceMin() <= 2 && // experience_min 필터
+                                    jobPosting.getExperienceMax() >= 0 && jobPosting.getExperienceMax() <= 3)   // experience_max 필터
+                    .toList(); // 필터링된 데이터를 리스트로 수집
 
             jobPostingRepository.saveAll(jobPostings);  // 여러 엔티티를 한 번에 저장
             log.info("success [searchJobs] page: {}", startPage);
@@ -92,67 +95,27 @@ public class JobPostingServiceImpl implements JobPostingService {
     }
 
     @Override
-    @Transactional
-    public void filterJobPostingByKeywords(Long userId) {
-        UserFilter userFilter = userFilterRepository.findByUserId(userId).orElseThrow(EntityNotFoundException::new);
-        JobPostingKeyword jobpostingKeywords = userFilter.getJobpostingKeywords();
+    public List<JobPostingEmailDto> getFilteredJobPostingsByUserId(Long userId) {
+        // 1. FilteredJobPosting 엔티티를 userId로 조회
+        FilteredJobPosting filteredJobPosting = filteredJobPostingRepository.findByUserId(userId).orElse(null);
 
-        // 각각의 키워드를 ','로 구분하고 공백을 제거하여 리스트로 분리
-        List<String> jobNames = parseKeywords(jobpostingKeywords.getJobNames());
-        List<String> locationNames = parseKeywords(jobpostingKeywords.getLocationNames());
-        List<String> jobTypeNames = parseKeywords(jobpostingKeywords.getJobTypeNames());
-        List<String> industryNames = parseKeywords(jobpostingKeywords.getIndustryNames());
-        List<String> educationLevelNames = parseKeywords(jobpostingKeywords.getEducationLevelNames());
-        // JobPosting 필터링 로직
-        List<Long> jobPostingIds = jobPostingRepository.findAll().stream()
-                .filter(jobPosting ->
-                        // 헬퍼 메서드를 활용하여 중복 코드 제거
-                        containsIgnoreCase(jobPosting.getJobName(), jobNames) &&
-                                containsIgnoreCase(jobPosting.getLocationName(), locationNames) &&
-                                containsIgnoreCase(jobPosting.getJobTypeName(), jobTypeNames) &&
-                                containsIgnoreCase(jobPosting.getIndustryName(), industryNames) &&
-                                containsIgnoreCase(jobPosting.getEducationLevelName(), educationLevelNames)
-                )
-                .map(JobPosting::getId)
+        if (filteredJobPosting == null || filteredJobPosting.getJobPostings().isEmpty()) {
+            return null;  // filteredJobPosting이 없거나, 저장된 jobPostings가 비어 있을 경우
+        }
+
+        // 2. JobPosting IDs를 split()으로 분리하고 Long 타입으로 변환
+        List<Long> jobPostingIds = Arrays.stream(filteredJobPosting.getJobPostings().split(","))
+                .map(String::trim)           // 공백 제거
+                .map(Long::valueOf)          // String -> Long 변환
+                .limit(5)           // 최대 5개까지만 처리
                 .toList();
 
-        saveFilteredJobPostings(userId, jobPostingIds);
-    }
+        // 3. JobPosting 레포지토리에서 ID들로 JobPosting 목록 조회 (최대 5개)
+        List<JobPosting> jobPostings = jobPostingRepository.findAllById(jobPostingIds);
 
-    // TODO: 아래 헬퍼 메서드 2개의 위치를 옮겨야한다
-    // 문자열 비교 헬퍼 메서드
-    private boolean containsIgnoreCase(String fieldValue, List<String> keywords) {
-        // fieldValue가 null이면 false 반환
-        if (fieldValue == null) {
-            return false;
-        }
-        // 각 키워드에 대해 fieldValue가 포함되는지 체크
-        return keywords.stream().anyMatch(keyword -> fieldValue.toLowerCase().contains(keyword.toLowerCase()));
-    }
-
-    // 유저 입력값 처리 헬퍼 메서드 (null 체크, trim, 소문자화)
-    private List<String> parseKeywords(String keywords) {
-        if (keywords == null || keywords.isBlank()) {
-            return List.of(); // null 또는 빈 문자열일 경우 빈 리스트 반환
-        }
-        return Arrays.stream(keywords.split(","))
-                .map(String::trim)
-                .filter(keyword -> !keyword.isEmpty()) // 빈 문자열 필터링
-                .map(String::toLowerCase) // 소문자화
+        // 4. 엔티티 -> DTO 변환
+        return jobPostings.stream()
+                .map(Converter::toEmailDTO) // 엔티티 -> DTO 변환
                 .toList();
-    }
-
-    @Override
-    public void saveFilteredJobPostings(Long userId, List<Long> jobPostings) {
-        String jobPostingList = jobPostings.stream()
-                .map(String::valueOf)
-                .collect(Collectors.joining(","));
-
-        FilteredJobPosting filteredJobPosting = FilteredJobPosting.builder()
-                .userId(userId)
-                .jobPostings(jobPostingList)
-                .build();
-
-        filteredJobPostingRepository.save(filteredJobPosting);
     }
 }
