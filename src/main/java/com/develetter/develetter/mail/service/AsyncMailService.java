@@ -2,6 +2,9 @@ package com.develetter.develetter.mail.service;
 
 import com.develetter.develetter.blog.dto.BlogDto;
 import com.develetter.develetter.blog.service.InterestService;
+import com.develetter.develetter.jobposting.dto.JobPostingEmailDto;
+import com.develetter.develetter.jobposting.entity.JobPosting;
+import com.develetter.develetter.jobposting.service.JobPostingService;
 import com.develetter.develetter.mail.dto.MailResDto;
 import com.develetter.develetter.user.service.UserService;
 import jakarta.mail.MessagingException;
@@ -31,6 +34,8 @@ public class AsyncMailService {
     private final MailService mailService;
     private final InterestService blogService;
     private final UserService userService;
+    private final JobPostingService jobPostingService;
+    private final JobPostingCalendarService jobPostingCalendarService;
 
     //메일 전송 메서드
     @Async
@@ -41,16 +46,18 @@ public class AsyncMailService {
             String email = userService.getEmailByUserId(mailResDto.userId());
 
             //filtered_job_posting 테이블에서 filtered_job_posting_id로 채용공고 리스트 찾기
+            List<JobPostingEmailDto> jobPostingList = jobPostingService.getFilteredJobPostingsByUserId(mailResDto.userId());
 
             //채용공고 리스트로 job_posting Calendar 생성
+            String jobPostingHtml = jobPostingCalendarService.createJobPostingCalendar(jobPostingList);
 
             //filtered_blog 테이블에서 filtered_blog_id로 블로그 데이터 찾기
-            BlogDto blog = blogService.getBlogByFilteredBlogId(mailResDto.filteredBlogId());
+            BlogDto blog = blogService.getBlogByUserId(mailResDto.userId());
 
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
             mimeMessageHelper.setTo(email);
             mimeMessageHelper.setSubject(getWeekOfMonth(LocalDate.now()) +  " develetter 뉴스레터");
-            mimeMessageHelper.setText(setContext(getWeekOfMonth(LocalDate.now()), blog, conferenceHtml), true);
+            mimeMessageHelper.setText(setContext(getWeekOfMonth(LocalDate.now()), jobPostingHtml, blog, conferenceHtml), true);
             javaMailSender.send(mimeMessage);
             //메일 발송 체크
             mailService.updateMailSendingCheck(mailResDto.id());
@@ -89,9 +96,10 @@ public class AsyncMailService {
 
 
     // thymeleaf를 통한 mail.html 적용
-    public String setContext(String date, BlogDto blogDto, String conferenceHtml) {
+    public String setContext(String date, String JobPostingHtml, BlogDto blogDto, String conferenceHtml) {
         Context context = new Context();
         context.setVariable("date", date);
+        context.setVariable("jobPostingHtml", JobPostingHtml);
         context.setVariable("blog", blogDto);
         context.setVariable("conferenceHtml", conferenceHtml);
         return templateEngine.process("email", context);
