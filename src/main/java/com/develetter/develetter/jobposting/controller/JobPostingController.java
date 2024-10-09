@@ -3,7 +3,6 @@ package com.develetter.develetter.jobposting.controller;
 import com.develetter.develetter.global.dto.ApiResponseDto;
 import com.develetter.develetter.jobposting.dto.JobSearchResDto;
 import com.develetter.develetter.jobposting.scheduler.JobPostingSchedulerImpl;
-import com.develetter.develetter.jobposting.service.JobPostingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.*;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class JobPostingController {
 
-    private final JobPostingService jobPostingService;
     private final JobPostingSchedulerImpl jobPostingSchedulerImpl;
     private final JobLauncher jobLauncher;
     private final Job filterJobPostingsJob;
@@ -27,13 +25,6 @@ public class JobPostingController {
     @GetMapping("/testCall")
     public ApiResponseDto<JobSearchResDto> callJobSearchApi() {
         jobPostingSchedulerImpl.fetchJobPostings();
-
-        return new ApiResponseDto<>(200, "성공");
-    }
-
-    @GetMapping("/testFilter")
-    public ApiResponseDto<Void> callTestFilter() {
-        jobPostingService.filterJobPostingByKeywords(1L);
 
         return new ApiResponseDto<>(200, "성공");
     }

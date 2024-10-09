@@ -1,5 +1,6 @@
 package com.develetter.develetter.jobposting.converter;
 
+import com.develetter.develetter.jobposting.dto.JobPostingEmailDto;
 import com.develetter.develetter.jobposting.dto.JobSearchResDto.Job;
 import com.develetter.develetter.jobposting.entity.JobPosting;
 
@@ -59,5 +60,19 @@ public class Converter {
     // 날짜 파싱 처리 메서드
     private static LocalDateTime parseDate(String date) {
         return date != null ? OffsetDateTime.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ")).toLocalDateTime() : null;
+    }
+
+    public static JobPostingEmailDto toEmailDTO(JobPosting jobPosting) {
+        return new JobPostingEmailDto(
+                jobPosting.getUrl(),
+                jobPosting.getCompanyName(),
+                jobPosting.getTitle(),
+                jobPosting.getIndustryName(),
+                jobPosting.getLocationName(),
+                jobPosting.getJobTypeName(),
+                jobPosting.getExperienceName(),
+                jobPosting.getPostingDate(),
+                jobPosting.getExpirationDate()
+        );
     }
 }
