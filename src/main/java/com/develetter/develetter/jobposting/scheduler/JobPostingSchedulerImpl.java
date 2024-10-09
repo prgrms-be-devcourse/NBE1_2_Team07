@@ -21,7 +21,7 @@ public class JobPostingSchedulerImpl implements JobPostingScheduler {
     private final JobPostingService jobPostingService;
 
     @Override
-//    @Scheduled(cron = "0 0 0 * * *") // 매일 00:00시 정각에 실행
+    @Scheduled(cron = "0 0 0 * * *") // 매일 00:00시 정각에 실행
     @Transactional
     public void fetchJobPostings() {
 
