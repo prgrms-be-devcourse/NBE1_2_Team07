@@ -36,7 +36,7 @@ public class ConferenceCalendarService {
 
         htmlContent.append("<div style='max-width: 950px; margin: 0 auto; font-family: Arial, sans-serif;'>")
                 .append("<div style= 'background-color: #553830; color: white; padding: 20px; text-align: center; font-size: large; border-radius: 10px 10px 0 0 ;'>")
-                .append("<h3>컨퍼런스 신청 일정</h3></div>")
+                .append("<h2>컨퍼런스 신청 일정</h2></div>")
                 .append("<table style='width: 100%; border-collapse: collapse;'>")
                 .append("<tr style='background-color: #f2f2f2;'>")
                 .append("<th style='padding: 10px; border: 1px solid #ddd; text-align: center;'>월</th>")
@@ -50,8 +50,6 @@ public class ConferenceCalendarService {
 
         // 현재 날짜 설정
         LocalDate today = LocalDate.now();
-        LocalDate endDate = today.plusDays(27); // 4주 후
-
         // 첫 주의 시작일 조정
         DayOfWeek firstDayOfWeek = today.getDayOfWeek();
         LocalDate startDate = today.minusDays(firstDayOfWeek.getValue() - 1);
@@ -93,7 +91,7 @@ public class ConferenceCalendarService {
 
         // 컨퍼런스 상세 정보 추가
         htmlContent.append("<div style='margin-top: 20px;'>")
-                .append("<h3 style='color: #553830; font-size: medium'>컨퍼런스 상세 정보</h3>");
+                .append("<h2 style='color: #553830; font-size: medium'>컨퍼런스 상세 정보</h2>");
 
         for (ConferenceResDto conference : conferenceList) {
             htmlContent.append("<div style='margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px;'>")
