@@ -42,17 +42,18 @@ public class AsyncMailService {
     public void sendMail(MailResDto mailResDto, String conferenceHtml) {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         try {
+            Long userId = mailResDto.userId();
             // user 테이블에서 userId로 email 찾기
-            String email = userService.getEmailByUserId(mailResDto.userId());
+            String email = userService.getEmailByUserId(userId);
 
             //filtered_job_posting 테이블에서 filtered_job_posting_id로 채용공고 리스트 찾기
-            List<JobPostingEmailDto> jobPostingList = jobPostingService.getFilteredJobPostingsByUserId(mailResDto.userId());
+            List<JobPostingEmailDto> jobPostingList = jobPostingService.getFilteredJobPostingsByUserId(userId);
 
             //채용공고 리스트로 job_posting Calendar 생성
             String jobPostingHtml = jobPostingCalendarService.createJobPostingCalendar(jobPostingList);
 
             //filtered_blog 테이블에서 filtered_blog_id로 블로그 데이터 찾기
-            BlogDto blog = blogService.getBlogByUserId(mailResDto.userId());
+            BlogDto blog = blogService.getBlogByUserId(userId);
 
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
             mimeMessageHelper.setTo(email);
@@ -60,9 +61,9 @@ public class AsyncMailService {
             mimeMessageHelper.setText(setContext(getWeekOfMonth(LocalDate.now()), jobPostingHtml, blog, conferenceHtml), true);
             javaMailSender.send(mimeMessage);
             //메일 발송 체크
-            mailService.updateMailSendingCheck(mailResDto.id());
+            mailService.updateMailSendingCheck(userId);
             //메일 DB 삭제
-            mailService.updateMailDeleted(mailResDto.id());
+            mailService.updateMailDeleted(userId);
             log.info("Send Mail Success");
         } catch (MessagingException e) {
             log.error("Sending Mail Failed", e);
