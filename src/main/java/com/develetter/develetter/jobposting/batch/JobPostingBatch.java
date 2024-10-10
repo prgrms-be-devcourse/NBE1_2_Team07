@@ -106,7 +106,7 @@ public class JobPostingBatch {
 
         List<Long> userIdList = Arrays.stream(userIds.split(","))
                 .map(Long::valueOf)
-                .collect(Collectors.toList());
+                .toList();
 
         // 모든 UserFilter를 메모리에 로드
         List<UserFilter> userFilters = userFilterRepository.findAll();
@@ -139,7 +139,7 @@ public class JobPostingBatch {
     public ItemWriter<Long> customItemWriter(@Value("#{jobParameters['userIds']}") String userIds) {
         List<Long> userIdList = Arrays.stream(userIds.split(","))
                 .map(Long::valueOf)
-                .collect(Collectors.toList());
+                .toList();
 
         return items -> {
             for (Long jobPostingId : items) {
