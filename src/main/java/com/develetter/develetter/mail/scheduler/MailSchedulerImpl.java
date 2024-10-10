@@ -21,10 +21,11 @@ public class MailSchedulerImpl implements MailScheduler {
     private final AsyncMailService asyncMailService;
     private final MailService mailService;
 
+
     @Override
-    @Transactional
     // 월요일 오전 8시 55분마다
     @Scheduled(cron = "0 50 8 * * MON")
+    @Transactional
     public void saveMails() {
         try {
             //메일 내용 저장
@@ -36,28 +37,51 @@ public class MailSchedulerImpl implements MailScheduler {
     }
 
     @Override
-    @Transactional
-    // 매분 10초마다
-    //@Scheduled(cron = "10 * * * * *")
+
     // 월요일 오전 9시마다
     @Scheduled(cron = "0 0 9 * * MON")
     public void sendingMails() {
         try {
 
-            //conference Calendar 생성
-            String conferenceHtml = conferenceCalendarService.createConferenceCalendar();
-
             //메일 정보 가져오기
-            //List<MailResDto> mailList = mailService.getAllMails();
+            List<MailResDto> mailList = mailService.getAllMails();
 
+            if (mailList != null) {
+                //conference Calendar 생성
+                String conferenceHtml = conferenceCalendarService.createConferenceCalendar();
 
-//            for (MailResDto mailResDto : mailList) {
-//                asyncMailService.sendMail(mailResDto, conferenceHtml);
-//            }
-
+                //메일 전송
+                for (MailResDto mailResDto : mailList) {
+                    asyncMailService.sendMail(mailResDto, conferenceHtml);
+                }
+            }
         } catch (Exception e) {
             log.error("Scheduled Mail Sent Error", e);
-
         }
+    }
+
+    @Override
+    // 월요일 오전 9시 5분마다
+    @Scheduled(cron = "0 5 9 * * MON")
+    public void sendingFailedMails() {
+        try {
+            //미발송 메일 정보 가져오기
+            List<MailResDto> failedMailList = mailService.getFailedMails();
+
+            //미발송 메일 재전송
+            if (!failedMailList.isEmpty()) {
+
+                //conference Calendar 생성
+                String conferenceHtml = conferenceCalendarService.createConferenceCalendar();
+
+                for (MailResDto mailResDto : failedMailList) {
+                    asyncMailService.sendMail(mailResDto, conferenceHtml);
+                }
+            }
+
+        } catch (Exception e) {
+            log.error("Scheduled Failed Mail Sent Error", e);
+        }
+
     }
 }

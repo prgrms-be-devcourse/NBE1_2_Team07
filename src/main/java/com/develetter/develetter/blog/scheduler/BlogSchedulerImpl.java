@@ -29,8 +29,7 @@ public class BlogSchedulerImpl implements BlogScheduler {
     private final FilteredBlogRepository filteredBlogRepository;
 
     // 매주 월요일 자정에 실행
-    //@Scheduled(cron = "0 0 0 * * MON")
-    @Scheduled(fixedRate = 2000000)
+    @Scheduled(cron = "0 0 0 * * MON")
     @Transactional
     public void fetchAndStoreBlogData() {
         filteredBlogRepository.deleteOldRecords();

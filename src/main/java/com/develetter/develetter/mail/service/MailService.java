@@ -7,7 +7,11 @@ public interface MailService {
 
     List<MailResDto> getAllMails();
 
+    List<MailResDto> getFailedMails();
+
     void createMails();
 
     void updateMailSendingCheck(Long id);
+
+    void updateMailDeleted(Long id);
 }
