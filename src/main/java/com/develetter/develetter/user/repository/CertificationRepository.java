@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 public interface CertificationRepository extends JpaRepository<CertificationEntity, String> {
     CertificationEntity findByAccountId(String accountId);
     void deleteByAccountId(String accountId);
+    CertificationEntity findTopByAccountIdOrderByCreatedAtDesc(String accountId);
+
 }
