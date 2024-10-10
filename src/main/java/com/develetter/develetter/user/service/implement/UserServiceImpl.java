@@ -12,6 +12,7 @@ import com.develetter.develetter.user.provider.JwtProvider;
 import com.develetter.develetter.user.repository.CertificationRepository;
 import com.develetter.develetter.user.repository.UserRepository;
 import com.develetter.develetter.user.service.UserService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -104,7 +105,7 @@ public class UserServiceImpl implements UserService {
             String accountId = email;
 
             // 인증 엔티티 조회
-            CertificationEntity certificationEntity = certificationRepository.findByAccountId(accountId);
+            CertificationEntity certificationEntity = certificationRepository.findTopByAccountIdOrderByCreatedAtDesc(accountId);
             if (certificationEntity == null) return CheckCertificationResponseDto.certificationFail();
 
             // 이메일 및 인증 번호가 일치하는지 확인
@@ -126,6 +127,7 @@ public class UserServiceImpl implements UserService {
      * @return 회원 가입 성공 여부에 따른 응답
      */
     @Override
+    @Transactional
     public ResponseEntity<? super SignupResponseDto> signUp(SignupRequestDto dto) {
         try {
             String email = dto.getEmail();

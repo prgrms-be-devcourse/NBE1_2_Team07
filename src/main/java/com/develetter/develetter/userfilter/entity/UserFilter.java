@@ -1,6 +1,7 @@
 package com.develetter.develetter.userfilter.entity;
 
 import com.develetter.develetter.global.entity.BaseEntity;
+import com.develetter.develetter.userfilter.dto.UserFilterReqDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -27,7 +28,18 @@ public class UserFilter extends BaseEntity {
     @Embedded
     private JobPostingKeyword jobpostingKeywords;  // 임베디드 타입
 
-    @Column(name = "blog_keywords", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "blog_keywords", columnDefinition = "TEXT")
     private String blogKeywords;
+
+    public void update(UserFilterReqDto dto) {
+        this.jobpostingKeywords = new JobPostingKeyword(
+                dto.jobNames(),
+                dto.locationNames(),
+                dto.jobTypeNames(),
+                dto.industryNames(),
+                dto.educationLevelNames()
+        );
+        this.blogKeywords = dto.blogKeywords();
+    }
 }
 
