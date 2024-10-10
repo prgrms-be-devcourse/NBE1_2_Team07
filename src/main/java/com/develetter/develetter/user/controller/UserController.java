@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
 
 import java.io.IOException;
 
@@ -24,6 +25,7 @@ public class UserController {
      * @param requestBody
      * @return
      */
+    @Operation(summary = "ID 중복 체크", description = "ID 중복 체크하는 API")
     @PostMapping("/id-check")
     public ResponseEntity<? super IdCheckResponseDto> idCheck(@RequestBody @Valid IdCheckRequestDto requestBody) {
         ResponseEntity<? super IdCheckResponseDto> response= userService.idCheck(requestBody);
@@ -36,6 +38,7 @@ public class UserController {
      * @param requestBody
      * @return
      */
+    @Operation(summary = "이메일 인증코드 발송", description = "이메일 인증코드 발송하는 API")
     @PostMapping("/email-certification")
     public ResponseEntity<? super EmailCertificationResponseDto> emailCertification(@RequestBody @Valid EmailCertificationRequestDto requestBody) {
         ResponseEntity<? super EmailCertificationResponseDto> response= userService.emailCertification(requestBody);
@@ -48,6 +51,7 @@ public class UserController {
      * @param requestBody
      * @return
      */
+    @Operation(summary = "이메일 인증코드 검사", description = "이메일 인증코드 일치하는지 검사하는 API")
     @PostMapping("/check-certification")
     public ResponseEntity<? super CheckCertificationResponseDto> checkCertification(@RequestBody @Valid CheckCertificationRequestDto requestBody) {
         ResponseEntity<? super CheckCertificationResponseDto> response= userService.checkCertification(requestBody);
@@ -60,6 +64,7 @@ public class UserController {
      * @param requestBody
      * @return
      */
+    @Operation(summary = "회원가입", description = "회원가입 하는 API")
     @PostMapping("/sign-up")
     public ResponseEntity<? super SignupResponseDto> signUp(@RequestBody @Valid SignupRequestDto requestBody) {
         ResponseEntity<? super SignupResponseDto> response= userService.signUp(requestBody);
@@ -72,6 +77,7 @@ public class UserController {
      * @param requestBody
      * @return
      */
+    @Operation(summary = "로그인", description = "로그인 하는 API")
     @PostMapping("/sign-in")
     public ResponseEntity<? super SigninResponseDto> signIn(@RequestBody @Valid SigninRequestDto requestBody) {
         ResponseEntity<? super SigninResponseDto> response= userService.signIn(requestBody);
@@ -84,6 +90,7 @@ public class UserController {
      * @param requestBody
      * @return
      */
+    @Operation(summary = "회원 탈퇴", description = "회원 탈퇴하는 API")
     @PostMapping("/delete-user")
     public ResponseEntity<? super DeleteIdResponseDto> deleteUser(@RequestBody @Valid DeleteIdRequestDto requestBody) {
         ResponseEntity<? super DeleteIdResponseDto> response= userService.deleteId(requestBody);
