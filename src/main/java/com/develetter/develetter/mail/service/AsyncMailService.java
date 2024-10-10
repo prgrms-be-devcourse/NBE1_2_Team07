@@ -1,6 +1,12 @@
 package com.develetter.develetter.mail.service;
 
+import com.develetter.develetter.blog.dto.BlogDto;
+import com.develetter.develetter.blog.service.InterestService;
+import com.develetter.develetter.jobposting.dto.JobPostingEmailDto;
+import com.develetter.develetter.jobposting.entity.JobPosting;
+import com.develetter.develetter.jobposting.service.JobPostingService;
 import com.develetter.develetter.mail.dto.MailResDto;
+import com.develetter.develetter.user.service.UserService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +22,7 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 import java.time.*;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.WeekFields;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,51 +32,43 @@ public class AsyncMailService {
     private final JavaMailSender javaMailSender;
     private final SpringTemplateEngine templateEngine;
     private final MailService mailService;
+    private final InterestService blogService;
+    private final UserService userService;
+    private final JobPostingService jobPostingService;
+    private final JobPostingCalendarService jobPostingCalendarService;
 
     //메일 전송 메서드
     @Async
     public void sendMail(MailResDto mailResDto, String conferenceHtml) {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         try {
+            Long userId = mailResDto.userId();
             // user 테이블에서 userId로 email 찾기
-            String email = "";
-                    //mailResDto.userId();
+            String email = userService.getEmailByUserId(userId);
 
             //filtered_job_posting 테이블에서 filtered_job_posting_id로 채용공고 리스트 찾기
+            List<JobPostingEmailDto> jobPostingList = jobPostingService.getFilteredJobPostingsByUserId(userId);
 
             //채용공고 리스트로 job_posting Calendar 생성
+            String jobPostingHtml = jobPostingCalendarService.createJobPostingCalendar(jobPostingList);
 
             //filtered_blog 테이블에서 filtered_blog_id로 블로그 데이터 찾기
+            BlogDto blog = blogService.getBlogByUserId(userId);
 
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
             mimeMessageHelper.setTo(email);
             mimeMessageHelper.setSubject(getWeekOfMonth(LocalDate.now()) +  " develetter 뉴스레터");
-            mimeMessageHelper.setText(setContext(getWeekOfMonth(LocalDate.now()), conferenceHtml), true);
+            mimeMessageHelper.setText(setContext(getWeekOfMonth(LocalDate.now()), jobPostingHtml, blog, conferenceHtml), true);
             javaMailSender.send(mimeMessage);
             //메일 발송 체크
-            mailService.updateMailSendingCheck(mailResDto.id());
-            log.info("Sending Mail Success");
+            mailService.updateMailSendingCheck(userId);
+            //메일 DB 삭제
+            mailService.updateMailDeleted(userId);
+            log.info("Send Mail Success");
         } catch (MessagingException e) {
             log.error("Sending Mail Failed", e);
         }
     }
-
-//    //발송 실패 메일 재전송 메서드
-//    private void sendFailMail(String email) {
-//        try {
-//            Thread.sleep(300000);
-//
-//            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-//            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
-//            mimeMessageHelper.setTo(email);
-//            mimeMessageHelper.setSubject(getWeekOfMonth(LocalDate.now()) +  " develetter 뉴스레터");
-//            mimeMessageHelper.setText(setContext(getWeekOfMonth(LocalDate.now())), true);
-//            javaMailSender.send(mimeMessage);
-//            log.info("Finally Sending Mail Success");
-//        } catch (Exception e) {
-//            log.error("Finally Sending Mail Failed");
-//        }
-//    }
 
     // 날짜 (ex. 9월 둘째주) 가져오는 메서드
     public String getWeekOfMonth(LocalDate localDate) {
@@ -98,9 +97,11 @@ public class AsyncMailService {
 
 
     // thymeleaf를 통한 mail.html 적용
-    public String setContext(String date, String conferenceHtml) {
+    public String setContext(String date, String JobPostingHtml, BlogDto blogDto, String conferenceHtml) {
         Context context = new Context();
         context.setVariable("date", date);
+        context.setVariable("jobPostingHtml", JobPostingHtml);
+        context.setVariable("blog", blogDto);
         context.setVariable("conferenceHtml", conferenceHtml);
         return templateEngine.process("email", context);
     }
