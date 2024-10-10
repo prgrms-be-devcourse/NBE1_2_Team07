@@ -7,4 +7,5 @@ import java.util.List;
 public interface MailScheduler {
     void saveMails();
     void sendingMails();
+    void sendingFailedMails();
 }

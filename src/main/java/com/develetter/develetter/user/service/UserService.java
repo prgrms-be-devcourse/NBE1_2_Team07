@@ -2,8 +2,11 @@ package com.develetter.develetter.user.service;
 
 import com.develetter.develetter.user.global.dto.request.*;
 import com.develetter.develetter.user.global.dto.response.*;
+import com.develetter.develetter.user.global.entity.UserEntity;
 import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 
 public interface UserService {
     ResponseEntity<? super IdCheckResponseDto> idCheck(IdCheckRequestDto dto);
@@ -12,5 +15,6 @@ public interface UserService {
     ResponseEntity<? super SignupResponseDto> signUp(SignupRequestDto dto);
     ResponseEntity<? super SigninResponseDto> signIn(SigninRequestDto dto);
     ResponseEntity<? super DeleteIdResponseDto> deleteId(DeleteIdRequestDto dto);
-    Long getUserIdByEmail(String email);
+    String getEmailByUserId(Long id);
+    List<UserEntity> getAllUsers();
 }

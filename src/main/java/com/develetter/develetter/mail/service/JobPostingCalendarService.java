@@ -2,6 +2,7 @@ package com.develetter.develetter.mail.service;
 
 import com.develetter.develetter.conference.dto.ConferenceResDto;
 import com.develetter.develetter.conference.service.ConferenceService;
+import com.develetter.develetter.jobposting.dto.JobPostingEmailDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,28 +16,25 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
-public class ConferenceCalendarService {
+public class JobPostingCalendarService {
     private final ConferenceService conferenceService;
 
     @Transactional
-    public String createConferenceCalendar() {
+    public String createJobPostingCalendar(List<JobPostingEmailDto> jobPostingList) {
         try {
-            LocalDate today = LocalDate.now();
-            List<ConferenceResDto> conferenceList = conferenceService.getAllConferenceWithDateRange(today, today.plusMonths(1));
-            log.info("Success Create Conference Calendar");
-            return generateCalendarHtml(conferenceList);
+            return generateCalendarHtml(jobPostingList);
         } catch (Exception e) {
-            log.error("Error Create Conference Calendar", e);
+            log.error("Error Create JobPosting Calendar", e);
         }
         return null;
     }
 
-    public String generateCalendarHtml(List<ConferenceResDto> conferenceList) {
+    public String generateCalendarHtml(List<JobPostingEmailDto> jobPostingList) {
         StringBuilder htmlContent = new StringBuilder();
 
         htmlContent.append("<div style='max-width: 950px; margin: 0 auto; font-family: Arial, sans-serif;'>")
-                .append("<div style= 'background-color: #553830; color: white; padding: 20px; text-align: center; font-size: large; border-radius: 10px 10px 0 0 ;'>")
-                .append("<h2>컨퍼런스 신청 일정</h2></div>")
+                .append("<div style= 'background-color: #004EA2; color: white; padding: 20px; text-align: center; font-size: large; border-radius: 10px 10px 0 0 ;'>")
+                .append("<h2>채용 일정</h2></div>")
                 .append("<table style='width: 100%; border-collapse: collapse;'>")
                 .append("<tr style='background-color: #f2f2f2;'>")
                 .append("<th style='padding: 10px; border: 1px solid #ddd; text-align: center;'>월</th>")
@@ -59,7 +57,7 @@ public class ConferenceCalendarService {
             htmlContent.append("<tr>");
             for (int day = 0; day < 7; day++) {
                 LocalDate currentDate = startDate.plusDays(week * 7 + day);
-                String cellStyle = "padding: 10px; border: 1px solid #ddd; vertical-align: top; height: 80px; width: 14%;";
+                String cellStyle = "padding: 10px; border: 1px solid #ddd; vertical-align: top; height: 120px; width: 14%;";
 
                 if (currentDate.equals(today)) {
                     cellStyle += " background-color: #fffacd;";
@@ -73,11 +71,11 @@ public class ConferenceCalendarService {
                         .append(currentDate.getDayOfMonth())
                         .append("</div>");
 
-                // 컨퍼런스 이벤트 추가
-                for (ConferenceResDto conference : conferenceList) {
-                    if (isDateInRange(currentDate, conference.applyStartDate(), conference.applyEndDate())) {
-                        htmlContent.append("<div style='background-color: #ebddcc; margin: 2px 0; padding: 1px 2px; font-size: 11px; line-height: 1.2;'>")
-                                .append(conference.name())
+                // 채용 공고 이벤트 추가
+                for (JobPostingEmailDto jobPosting : jobPostingList) {
+                    if (isDateInRange(currentDate, jobPosting.postingDate().toLocalDate(), jobPosting.expirationDate().toLocalDate())) {
+                        htmlContent.append("<div style='background-color: #CCDEF0; margin: 2px 0; padding: 1px 2px; font-size: 11px; line-height: 1.2;'>")
+                                .append(jobPosting.title()).append(" | ").append(jobPosting.companyName())
                                 .append("</div>");
                     }
                 }
@@ -89,17 +87,20 @@ public class ConferenceCalendarService {
 
         htmlContent.append("</table>");
 
-        // 컨퍼런스 상세 정보 추가
+        // 채용 공고 상세 정보 추가
         htmlContent.append("<div style='margin-top: 20px;'>")
-                .append("<h2 style='color: #553830; font-size: medium'>컨퍼런스 상세 정보</h2>");
+                .append("<h2 style='color: #004EA2; font-size: medium'>채용 공고 상세 정보</h2>");
 
-        for (ConferenceResDto conference : conferenceList) {
+        for (JobPostingEmailDto jobPosting : jobPostingList) {
             htmlContent.append("<div style='margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px;'>")
-                    .append("<h4 style='margin: 0 0 10px 0; color: #553830'>")
-                    .append(conference.name()).append(" | ").append(conference.host()).append("</a></h4>")
-                    .append("<p style='margin: 5px 0;'>신청 기간: ").append(conference.applyStartDate()).append(" ~ ").append(conference.applyEndDate()).append("</p>")
-                    .append("<p style='margin: 5px 0;'>진행 기간: ").append(conference.startDate()).append(" ~ ").append(conference.endDate()).append("</p>")
-                    .append("<a href='").append(conference.url()).append("' style='color: #553830; text-decoration: none;'>&rarr; 자세히 보기</a>")
+                    .append("<h4 style='margin: 0 0 10px 0; color: #004EA2'>")
+                    .append(jobPosting.title()).append(" | ").append(jobPosting.companyName()).append("</a></h4>")
+                    .append("<p style='margin: 5px 0;'>산업 이름: ").append(jobPosting.industryName()).append("</p>")
+                    .append("<p style='margin: 5px 0;'>경력 요건: ").append(jobPosting.experienceName()).append("</p>")
+                    .append("<p style='margin: 5px 0;'>직무 형태: ").append(jobPosting.jobTypeName()).append("</p>")
+                    .append("<p style='margin: 5px 0;'>근무지: ").append(jobPosting.locationName()).append("</p>")
+                    .append("<p style='margin: 5px 0;'>공고 기간: ").append(jobPosting.postingDate().toLocalDate()).append(" ~ ").append(jobPosting.expirationDate().toLocalDate()).append("</p>")
+                    .append("<a href='").append(jobPosting.url()).append("' style='color: #004EA2; text-decoration: none;'>&rarr; 자세히 보기</a>")
                     .append("</div>");
         }
 
