@@ -7,17 +7,14 @@ import com.develetter.develetter.jobposting.entity.FilteredJobPosting;
 import com.develetter.develetter.jobposting.entity.JobPosting;
 import com.develetter.develetter.jobposting.entity.QJobPosting;
 import com.develetter.develetter.jobposting.repository.FilteredJobPostingRepository;
-import com.develetter.develetter.jobposting.repository.JobPostingRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobExecutionListener;
-import org.springframework.batch.core.Step;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
@@ -26,18 +23,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
-
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Configuration
 @RequiredArgsConstructor
+@Slf4j
 public class JobPostingBatch {
 
     private final PlatformTransactionManager platformTransactionManager;
     private final JobRepository jobRepository;
-    private final JobPostingRepository jobPostingRepository;
     private final FilteredJobPostingRepository filteredJobPostingRepository;
     private final UserFilterRepository userFilterRepository;
     private final JPAQueryFactory queryFactory;
@@ -47,33 +44,30 @@ public class JobPostingBatch {
 
     @Bean
     public JobExecutionListener jobExecutionListener() {
-
         return new JobExecutionListener() {
-
-            private LocalDateTime startTime;
-
             @Override
             public void beforeJob(JobExecution jobExecution) {
-                startTime = LocalDateTime.now();
+                System.out.println("Job 시작: " + jobExecution.getJobInstance().getJobName());
             }
 
             @Override
             public void afterJob(JobExecution jobExecution) {
-                LocalDateTime endTime = LocalDateTime.now();
-
-                long nanos = ChronoUnit.NANOS.between(startTime, endTime);
-                double seconds = nanos / 1_000_000_000.0;
-
-                System.out.println("Job 실행 시간: " + seconds + " 초");
+                if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
+                    System.out.println("Job 완료: " + jobExecution.getJobInstance().getJobName());
+                } else {
+                    System.err.println("Job 실패: " + jobExecution.getAllFailureExceptions());
+                }
             }
         };
     }
+
 
     @Bean
     public Job filterJobPostingsJob(JPAQueryFactory jpaQueryFactory) {
         return new JobBuilder("filterJobPostingsJob", jobRepository)
                 .listener(jobExecutionListener())
                 .start(filterJobPostingsStep(jpaQueryFactory))
+                .incrementer(new RunIdIncrementer())
                 .build();
     }
 
@@ -108,53 +102,65 @@ public class JobPostingBatch {
     @Bean
     @StepScope
     public ItemProcessor<JobPosting, Long> itemProcessor(
-            @Value("#{jobParameters['userId']}") Long userId) {
+            @Value("#{jobParameters['userIds']}") String userIds) {
+
+        List<Long> userIdList = Arrays.stream(userIds.split(","))
+                .map(Long::valueOf)
+                .collect(Collectors.toList());
+
+        // 모든 UserFilter를 메모리에 로드
+        List<UserFilter> userFilters = userFilterRepository.findAll();
+        Map<Long, JobPostingKeyword> userFilterMap = userFilters.stream()
+                .collect(Collectors.toMap(UserFilter::getUserId, UserFilter::getJobpostingKeywords));
 
         return jobPosting -> {
-            UserFilter userFilter = userFilterRepository.findByUserId(userId)
-                    .orElseThrow(EntityNotFoundException::new);
-            JobPostingKeyword jobpostingKeywords = userFilter.getJobpostingKeywords();
+            for (Long userId : userIdList) {
+                JobPostingKeyword jobpostingKeywords = userFilterMap.get(userId);
 
-            List<String> jobNames = parseKeywords(jobpostingKeywords.getJobNames());
-            List<String> locationNames = parseKeywords(jobpostingKeywords.getLocationNames());
-            List<String> jobTypeNames = parseKeywords(jobpostingKeywords.getJobTypeNames());
-            List<String> industryNames = parseKeywords(jobpostingKeywords.getIndustryNames());
-            List<String> educationLevelNames = parseKeywords(jobpostingKeywords.getEducationLevelNames());
+                // 필터링 조건을 통과하는지 확인
+                if (jobpostingKeywords != null &&
+                        containsIgnoreCase(jobPosting.getJobName(), parseKeywords(jobpostingKeywords.getJobNames())) &&
+                        containsIgnoreCase(jobPosting.getLocationName(), parseKeywords(jobpostingKeywords.getLocationNames())) &&
+                        containsIgnoreCase(jobPosting.getJobTypeName(), parseKeywords(jobpostingKeywords.getJobTypeNames())) &&
+                        containsIgnoreCase(jobPosting.getIndustryName(), parseKeywords(jobpostingKeywords.getIndustryNames())) &&
+                        containsIgnoreCase(jobPosting.getEducationLevelName(), parseKeywords(jobpostingKeywords.getEducationLevelNames()))) {
 
-            // 필터링 조건을 통과하는지 확인
-            if (containsIgnoreCase(jobPosting.getJobName(), jobNames) &&
-                    containsIgnoreCase(jobPosting.getLocationName(), locationNames) &&
-                    containsIgnoreCase(jobPosting.getJobTypeName(), jobTypeNames) &&
-                    containsIgnoreCase(jobPosting.getIndustryName(), industryNames) &&
-                    containsIgnoreCase(jobPosting.getEducationLevelName(), educationLevelNames)) {
-
-                // 조건을 통과한 경우 JobPosting ID 반환
-                return jobPosting.getId(); // ID를 반환
+                    // 조건을 통과한 경우 JobPosting ID 반환
+                    return jobPosting.getId(); // ID를 반환
+                }
             }
             return null; // 필터 조건을 통과하지 못하면 null 반환
         };
     }
 
+
     @Bean
     @StepScope
-    public ItemWriter<Long> customItemWriter(@Value("#{jobParameters['userId']}") Long userId) {
+    public ItemWriter<Long> customItemWriter(@Value("#{jobParameters['userIds']}") String userIds) {
+        List<Long> userIdList = Arrays.stream(userIds.split(","))
+                .map(Long::valueOf)
+                .collect(Collectors.toList());
+
         return items -> {
             for (Long jobPostingId : items) {
-                // 기존의 FilteredJobPosting을 찾거나 새로 생성
-                FilteredJobPosting filteredJobPosting = filteredJobPostingRepository.findByUserId(userId)
-                        .orElse(FilteredJobPosting.builder()
-                                .userId(userId)
-                                .jobPostings("") // 초기값 설정
-                                .build());
+                for (Long userId : userIdList) {
+                    // 기존의 FilteredJobPosting을 찾거나 새로 생성
+                    FilteredJobPosting filteredJobPosting = filteredJobPostingRepository.findByUserId(userId)
+                            .orElse(FilteredJobPosting.builder()
+                                    .userId(userId)
+                                    .jobPostings("") // 초기값 설정
+                                    .build());
 
-                // 새 JobPosting ID를 추가
-                filteredJobPosting.addJobPosting(jobPostingId);
+                    // 새 JobPosting ID를 추가
+                    filteredJobPosting.addJobPosting(jobPostingId);
 
-                // 업데이트된 필터링된 잡 포스팅 저장
-                filteredJobPostingRepository.save(filteredJobPosting);
+                    // 업데이트된 필터링된 잡 포스팅 저장
+                    filteredJobPostingRepository.save(filteredJobPosting);
+                }
             }
         };
     }
+
 
     private List<String> parseKeywords(String keywords) {
         if (keywords == null || keywords.isBlank()) {
