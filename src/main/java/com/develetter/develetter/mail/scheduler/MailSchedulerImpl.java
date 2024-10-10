@@ -69,7 +69,7 @@ public class MailSchedulerImpl implements MailScheduler {
             List<MailResDto> failedMailList = mailService.getFailedMails();
 
             //미발송 메일 재전송
-            if (failedMailList != null) {
+            if (!failedMailList.isEmpty()) {
 
                 //conference Calendar 생성
                 String conferenceHtml = conferenceCalendarService.createConferenceCalendar();
