@@ -31,9 +31,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 public class MailBatch {
-    private final JavaMailSender javaMailSender;
-    private final SpringTemplateEngine templateEngine;
-
     private final JobRepository jobRepository;
     private final MailRepository mailRepository;
     private final UserRepository userRepository;
@@ -78,12 +75,7 @@ public class MailBatch {
 
     @Bean
     public ItemProcessor<UserEntity, Mail> saveMailProcessor() {
-        return new ItemProcessor<UserEntity, Mail>() {
-            @Override
-            public Mail process(UserEntity user) throws Exception {
-                return new Mail(user.getId());
-            }
-        };
+        return user -> new Mail(user.getId());
     }
 
     @Bean
@@ -127,9 +119,9 @@ public class MailBatch {
                 //전송 실패시 재전송
                 log.error("Send Failed Mail for User ID: " + mail.getId());
                 asyncMailService.sendMail(mail, conferenceHtml);
+            } finally {
+                mailService.updateMailDeleted(mail.getId());
             }
-
-            mailService.updateMailDeleted(mail.getId());
             return mail;
         };
     }
