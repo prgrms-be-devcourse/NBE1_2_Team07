@@ -1,5 +1,6 @@
 package com.develetter.develetter.mail.scheduler;
 
+import com.develetter.develetter.mail.config.JobParametersFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.JobParameters;
@@ -19,6 +20,7 @@ import java.util.List;
 public class MailSchedulerImpl implements MailScheduler {
     private final JobLauncher jobLauncher;
     private final JobRegistry jobRegistry;
+    private final JobParametersFactory jobParametersFactory;
 
     @Override
     // 월요일 오전 9시마다
@@ -27,9 +29,7 @@ public class MailSchedulerImpl implements MailScheduler {
     public void sendingMails() {
         try {
             //메일 전송
-            JobParameters jobParameters = new JobParametersBuilder()
-                    .addLong("run.id", System.currentTimeMillis())
-                    .toJobParameters();
+            JobParameters jobParameters = jobParametersFactory.createJobParameters();
 
             jobLauncher.run(jobRegistry.getJob("mailJob"), jobParameters);
 
