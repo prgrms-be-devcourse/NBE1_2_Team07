@@ -24,8 +24,7 @@ public class MailSchedulerImpl implements MailScheduler {
 
     @Override
     // 월요일 오전 9시마다
-    //@Scheduled(cron = "0 0 9 * * MON")
-    @Scheduled(cron = "30 * * * * *")
+    @Scheduled(cron = "0 0 9 * * MON")
     public void sendingMails() {
         try {
             //메일 전송
