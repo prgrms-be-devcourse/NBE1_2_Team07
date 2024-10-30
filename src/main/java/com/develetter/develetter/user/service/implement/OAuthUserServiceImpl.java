@@ -51,7 +51,7 @@ public class OAuthUserServiceImpl extends DefaultOAuth2UserService {
         // 카카오 OAuth 처리
         if (oauthClientName.equals("kakao")) {
             accountId = "kakao_" + oAuth2User.getAttributes().get("id");  // 카카오 사용자의 ID 설정
-            userEntity = new UserEntity(null, accountId, password, email, "kakao", "ROLE_USER");  // 사용자 엔티티 생성
+            userEntity = new UserEntity(null, accountId, password, email, "kakao", "ROLE_USER","NO");  // 사용자 엔티티 생성
         }
 
         // 네이버 OAuth 처리
@@ -59,7 +59,7 @@ public class OAuthUserServiceImpl extends DefaultOAuth2UserService {
             Map<String, String> responseMap = (Map<String, String>) oAuth2User.getAttributes().get("response");
             accountId = "naver_" + responseMap.get("id").substring(0, 14);  // 네이버 사용자의 ID 설정
             email = responseMap.get("email");  // 네이버 사용자의 이메일 추출
-            userEntity = new UserEntity(null, accountId, password, email, "naver", "ROLE_USER");  // 사용자 엔티티 생성
+            userEntity = new UserEntity(null, accountId, password, email, "naver", "ROLE_USER","NO");  // 사용자 엔티티 생성
         }
 
         // 사용자 정보 저장
