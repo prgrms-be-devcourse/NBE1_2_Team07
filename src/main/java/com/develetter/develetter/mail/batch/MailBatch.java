@@ -14,6 +14,7 @@ import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.data.RepositoryItemReader;
 import org.springframework.batch.item.data.RepositoryItemWriter;
 import org.springframework.batch.item.data.builder.RepositoryItemReaderBuilder;
@@ -21,9 +22,7 @@ import org.springframework.batch.item.data.builder.RepositoryItemWriterBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Sort;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.util.Map;
 
@@ -93,7 +92,7 @@ public class MailBatch {
                 .<Mail, Mail> chunk(CHUNK_SIZE, platformTransactionManager)
                 .reader(mailReader())
                 .processor(sendMailProcessor())
-                .writer(mailWriter())
+                .writer(emptyMailWriter())
                 .build();
     }
 
@@ -123,6 +122,13 @@ public class MailBatch {
                 mailService.updateMailDeleted(mail.getId());
             }
             return mail;
+        };
+    }
+
+    @Bean
+    public ItemWriter<Mail> emptyMailWriter() {
+        return items -> {
+            // 빈 구현: 아무 동작도 수행하지 않음
         };
     }
 
