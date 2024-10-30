@@ -1,5 +1,6 @@
 package com.develetter.develetter.jobposting.batch;
 
+import com.develetter.develetter.jobposting.service.FilteredJobPostingCacheService;
 import com.develetter.develetter.userfilter.entity.JobPostingKeyword;
 import com.develetter.develetter.userfilter.entity.UserFilter;
 import com.develetter.develetter.userfilter.repository.UserFilterRepository;
@@ -19,6 +20,7 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +28,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Configuration
@@ -42,6 +45,10 @@ public class JobPostingBatch {
 
     private static final int chunkSize = 100;
 
+    @Autowired
+    private FilteredJobPostingCacheService filteredJobPostingCacheService;
+
+
     @Bean
     public JobExecutionListener jobExecutionListener() {
         return new JobExecutionListener() {
@@ -54,13 +61,44 @@ public class JobPostingBatch {
             public void afterJob(JobExecution jobExecution) {
                 if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
                     System.out.println("Job 완료: " + jobExecution.getJobInstance().getJobName());
+                    // 모든 사용자 ID에 대해 Redis 캐시된 데이터 일괄 저장
+                    saveAllCachedJobPostingsToDB(jobExecution);
                 } else {
                     System.err.println("Job 실패: " + jobExecution.getAllFailureExceptions());
                 }
             }
+
+            private void saveAllCachedJobPostingsToDB(JobExecution jobExecution) {
+                // JobParameters에서 userIds 가져오기
+                String userIdsParam = jobExecution.getJobParameters().getString("userIds");
+
+                if (userIdsParam != null) {
+                    List<Long> userIds = Arrays.stream(userIdsParam.split(","))
+                            .map(Long::valueOf)
+                            .toList();
+
+                    for (Long userId : userIds) {
+                        Set<Object> jobPostingIds = filteredJobPostingCacheService.getJobPostingsFromCache(userId);
+
+                        // jobPostingIds를 String 타입으로 변환
+                        String jobPostings = jobPostingIds.stream()
+                                .map(Object::toString)
+                                .collect(Collectors.joining(","));
+
+                        // DB에 저장할 객체 생성 및 저장
+                        FilteredJobPosting filteredJobPosting = FilteredJobPosting.builder()
+                                .userId(userId)
+                                .jobPostings(jobPostings) // ID들을 쉼표로 구분하여 저장
+                                .build();
+                        filteredJobPostingRepository.save(filteredJobPosting);
+
+                        // Redis 캐시 삭제
+                        filteredJobPostingCacheService.clearCache(userId);
+                    }
+                }
+            }
         };
     }
-
 
     @Bean
     public Job filterJobPostingsJob(JPAQueryFactory jpaQueryFactory) {
@@ -133,7 +171,6 @@ public class JobPostingBatch {
         };
     }
 
-
     @Bean
     @StepScope
     public ItemWriter<Long> customItemWriter(@Value("#{jobParameters['userIds']}") String userIds) {
@@ -144,18 +181,8 @@ public class JobPostingBatch {
         return items -> {
             for (Long jobPostingId : items) {
                 for (Long userId : userIdList) {
-                    // 기존의 FilteredJobPosting을 찾거나 새로 생성
-                    FilteredJobPosting filteredJobPosting = filteredJobPostingRepository.findByUserId(userId)
-                            .orElse(FilteredJobPosting.builder()
-                                    .userId(userId)
-                                    .jobPostings("") // 초기값 설정
-                                    .build());
-
-                    // 새 JobPosting ID를 추가
-                    filteredJobPosting.addJobPosting(jobPostingId);
-
-                    // 업데이트된 필터링된 잡 포스팅 저장
-                    filteredJobPostingRepository.save(filteredJobPosting);
+                    // 각 사용자별로 필터링된 잡 포스팅 ID를 Redis에 임시 저장
+                    filteredJobPostingCacheService.addJobPostingToCache(userId, jobPostingId);
                 }
             }
         };
