@@ -3,9 +3,8 @@ package com.develetter.develetter.mail.service;
 import com.develetter.develetter.blog.dto.BlogDto;
 import com.develetter.develetter.blog.service.InterestService;
 import com.develetter.develetter.jobposting.dto.JobPostingEmailDto;
-import com.develetter.develetter.jobposting.entity.JobPosting;
 import com.develetter.develetter.jobposting.service.JobPostingService;
-import com.develetter.develetter.mail.dto.MailResDto;
+import com.develetter.develetter.mail.entity.Mail;
 import com.develetter.develetter.user.service.UserService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -37,37 +36,40 @@ public class AsyncMailService {
     private final JobPostingService jobPostingService;
     private final JobPostingCalendarService jobPostingCalendarService;
 
-    //메일 전송 메서드
     @Async
-    public void sendMail(MailResDto mailResDto, String conferenceHtml) {
-        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+    //메일 전송 메서드
+    public void sendMail(Mail mail, String conferenceHtml) {
         try {
-            Long userId = mailResDto.userId();
-            // user 테이블에서 userId로 email 찾기
+            // 유저 ID로 필요한 데이터 로드
+            Long userId = mail.getUserId();
             String email = userService.getEmailByUserId(userId);
-
-            //filtered_job_posting 테이블에서 filtered_job_posting_id로 채용공고 리스트 찾기
             List<JobPostingEmailDto> jobPostingList = jobPostingService.getFilteredJobPostingsByUserId(userId);
+            BlogDto blog = blogService.getBlogByUserId(userId);
 
             //채용공고 리스트로 job_posting Calendar 생성
             String jobPostingHtml = jobPostingCalendarService.createJobPostingCalendar(jobPostingList);
 
-            //filtered_blog 테이블에서 filtered_blog_id로 블로그 데이터 찾기
-            BlogDto blog = blogService.getBlogByUserId(userId);
+            // 메일 컨텐츠 구성
+            String mailContent = setContext(getWeekOfMonth(LocalDate.now()), jobPostingHtml, blog, conferenceHtml);
 
-            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
-            mimeMessageHelper.setTo(email);
-            mimeMessageHelper.setSubject(getWeekOfMonth(LocalDate.now()) +  " develetter 뉴스레터");
-            mimeMessageHelper.setText(setContext(getWeekOfMonth(LocalDate.now()), jobPostingHtml, blog, conferenceHtml), true);
-            javaMailSender.send(mimeMessage);
-            //메일 발송 체크
-            mailService.updateMailSendingCheck(userId);
-            //메일 DB 삭제
-            mailService.updateMailDeleted(userId);
-            log.info("Send Mail Success");
+            // 이메일 전송
+            sendMimeMessage(email, mailContent);
+
+            // 메일 발송 완료 체크
+            mailService.updateMailSendingCheck(mail.getId());
+            log.info("Send Mail Success for User ID: " + mail.getId());
         } catch (MessagingException e) {
-            log.error("Sending Mail Failed", e);
+            log.error("Send Mail Failed for User ID: " + mail.getId());
         }
+    }
+
+    private void sendMimeMessage(String email, String mailContent) throws MessagingException {
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+        mimeMessageHelper.setTo(email);
+        mimeMessageHelper.setSubject(getWeekOfMonth(LocalDate.now()) + " develetter 뉴스레터");
+        mimeMessageHelper.setText(mailContent, true);
+        javaMailSender.send(mimeMessage);
     }
 
     // 날짜 (ex. 9월 둘째주) 가져오는 메서드

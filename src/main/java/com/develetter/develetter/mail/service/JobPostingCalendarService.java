@@ -17,7 +17,6 @@ import java.util.*;
 @Slf4j
 @Transactional(readOnly = true)
 public class JobPostingCalendarService {
-    private final ConferenceService conferenceService;
 
     @Transactional
     public String createJobPostingCalendar(List<JobPostingEmailDto> jobPostingList) {
