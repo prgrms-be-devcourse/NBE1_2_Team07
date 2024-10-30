@@ -17,6 +17,10 @@ import java.util.Date;
  * JWT 토큰 생성 및 검증을 담당하는 클래스.
  * 주어진 사용자 ID로 JWT 토큰을 생성 -> 토큰의 유효성을 검증하여 사용자 ID를 반환
  */
+/**
+ * JWT 토큰 생성 및 검증을 담당하는 클래스.
+ * 주어진 사용자 ID로 JWT 토큰을 생성 -> 토큰의 유효성을 검증하여 사용자 ID를 반환
+ */
 @Component
 @Slf4j
 public class JwtProvider {

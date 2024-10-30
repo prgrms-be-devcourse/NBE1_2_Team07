@@ -15,6 +15,7 @@ public interface UserService {
     ResponseEntity<? super SignupResponseDto> signUp(SignupRequestDto dto);
     ResponseEntity<? super SigninResponseDto> signIn(SigninRequestDto dto);
     ResponseEntity<? super DeleteIdResponseDto> deleteId(DeleteIdRequestDto dto);
+    ResponseEntity<? super RegisterSubscribeResponseDto> registerSubscribe(RegisterSubscribeRequestDto dto);
     String getEmailByUserId(Long id);
     List<UserEntity> getAllUsers();
 }

@@ -20,6 +20,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -227,6 +228,35 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public ResponseEntity<? super RegisterSubscribeResponseDto> registerSubscribe(RegisterSubscribeRequestDto dto) {
+        try {
+            Long userId = dto.getUserId();
+            String subscribeType = dto.getSubscribeType();
+            UserEntity userEntity = userRepository.findById(userId);
+
+            UserEntity updateUserEntity = UserEntity.builder()
+                    .id(userId)
+                    .accountId(userEntity.getAccountId())
+                    .password(userEntity.getPassword())
+                    .email(userEntity.getEmail())
+                    .type(userEntity.getType())
+                    .role(userEntity.getRole())
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now()) // 업데이트 시간 변경
+                    .subscription(subscribeType)
+                    .build();
+
+            userRepository.save(updateUserEntity);
+        } catch (Exception e) {
+            log.info("구독 등록 실패: {}", e);
+            return RegisterSubscribeResponseDto.databaseError();  // 데이터��이스 오류
+        }
+        return RegisterSubscribeResponseDto.success();  // 구�� 등록 성공
+    }
+
+
+
+    @Override
     public String getEmailByUserId(Long id) {
         UserEntity user = userRepository.findById(id);
         return user.getEmail();
@@ -236,4 +266,6 @@ public class UserServiceImpl implements UserService {
     public List<UserEntity> getAllUsers() {
         return userRepository.findAll();
     }
+
+
 }
