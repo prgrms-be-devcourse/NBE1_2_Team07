@@ -97,7 +97,7 @@ public class UserController {
         log.info("[deleteUser]: {id: " + requestBody.getEmail() + ", password: " + requestBody.getPassword() + "}");
         return response;
     }
-    @Operation(summary = "구독회원 설", description = "구독회원을 설정하는 API")
+    @Operation(summary = "구독회원 설정", description = "구독회원을 설정하는 API")
     @PostMapping("/register-subscription")
     public ResponseEntity<? super RegisterSubscribeResponseDto> registerSubscription(@RequestBody @Valid RegisterSubscribeRequestDto requestBody) {
         ResponseEntity<? super RegisterSubscribeResponseDto> response = userService.registerSubscribe(requestBody);

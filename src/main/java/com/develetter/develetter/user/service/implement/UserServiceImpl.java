@@ -150,7 +150,7 @@ public class UserServiceImpl implements UserService {
             String encodedPassword = passwordEncoder.encode(password);
             dto.setPassword(encodedPassword);
 
-            UserEntity userEntity = UserEntity.builder().accountId(accountId).password(encodedPassword).email(email).type("general").role(Role.USER).build();
+            UserEntity userEntity = UserEntity.builder().accountId(accountId).password(encodedPassword).email(email).type("general").role(Role.USER).subscription("NO").build();
             userRepository.save(userEntity);
 
             // 인증 엔티티 삭제
@@ -186,7 +186,7 @@ public class UserServiceImpl implements UserService {
             if (!isMatched) return SigninResponseDto.signInFail();  // 비밀번호 불일치
 
             // JWT 토큰 생성
-            token = jwtProvider.create(accountId, role);
+            token = jwtProvider.create(userEntity.getId(), role);
 
             role = userRepository.findByAccountId(accountId).getRole();
 

@@ -26,6 +26,7 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     /**
      * OAuth2 인증이 성공했을 때 호출되는 메서드.
      * 사용자 정보를 바탕으로 JWT 토큰을 생성하고 클라이언트로 전달.
+     *
      * @param authentication 인증 객체 (OAuth2 사용자 정보 포함)
      */
     @Override
@@ -34,21 +35,13 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         // 인증된 OAuth2 사용자 정보 가져오기
         CustomOAuthUser oAuth2User = (CustomOAuthUser) authentication.getPrincipal();
 
-        // 사용자 ID를 바탕으로 JWT 토큰 생성
-        String userId = oAuth2User.getName();
+        // Long 타입의 사용자 ID 가져오기
+        Long userId = oAuth2User.getId();  // CustomOAuthUser의 getId()가 Long 타입을 반환한다고 가정
+
+        // 사용자 ID와 역할 정보를 바탕으로 JWT 토큰 생성
         String token = jwtProvider.create(userId, "ROLE_USER");
 
         // 인증 성공 후 클라이언트로 토큰을 전달할 수 있는 로직 추가 (리다이렉트)
         response.sendRedirect("http://localhost:3000/auth/oauth-response/" + token + "/3600");
-
     }
-//    @Override
-//    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-//        String userId = authentication.getName();
-//        String token = jwtProvider.create(userId);
-//
-//        // oauth2Success 엔드포인트로 리다이렉트하면서 토큰 전달
-//        String redirectUrl = "/api/auth/oauth2/success?token=" + token;
-//        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
-//    }
 }
