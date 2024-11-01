@@ -15,6 +15,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class CustomOAuthUser implements OAuth2User {
 
+    private Long id; // Long 타입의 사용자 ID 추가
     private String accountId;
 
     @Override
@@ -31,5 +32,9 @@ public class CustomOAuthUser implements OAuth2User {
     public String getName() {
         return this.accountId;
     }
-}
 
+    // Long 타입의 id를 반환하는 getId 메서드 추가
+    public Long getId() {
+        return this.id;
+    }
+}

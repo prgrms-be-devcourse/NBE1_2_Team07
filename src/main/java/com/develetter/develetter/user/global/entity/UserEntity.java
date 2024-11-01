@@ -35,6 +35,6 @@ public class UserEntity extends BaseEntity {
     @Column(name = "role", nullable = false, length = 10)
     private String role; // ROLE_USER, ROLE_ADMIN
 
-    @Column(name = "subscription", nullable = false, length = 10)
+    @Column(name = "subscription", nullable = true, length = 10)
     private String subscription; //YES, NO
 }

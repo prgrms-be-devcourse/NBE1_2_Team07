@@ -33,8 +33,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-//todo
-    private final UserRepository userRepository;  // 사용자 정보를 조회 repository
+    private final UserRepository userRepository;  // 사용자 정보를 조회하는 repository
     private final JwtProvider jwtProvider;        // JWT 토큰 제공 및 검증 provider
 
     /**
@@ -53,14 +52,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             // 토큰 유효성 검사 및 사용자 ID 추출
-            String accountId = jwtProvider.validate(token);
-            if (accountId == null) {
+            Long userId = jwtProvider.validate(token);
+            if (userId == null) {
                 filterChain.doFilter(request, response);
                 return;
             }
 
             // 사용자 ID로 사용자 정보 조회
-            UserEntity userEntity = userRepository.findByAccountId(accountId);
+            UserEntity userEntity = userRepository.findById(userId);
+            if (userEntity == null) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             String role = userEntity.getRole(); // 역할: ROLE_USER 또는 ROLE_ADMIN
 
             // 사용자 권한 설정
@@ -70,7 +74,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // 인증 객체 생성 및 SecurityContext에 설정
             SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
             AbstractAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(accountId, null, authorities);
+                    new UsernamePasswordAuthenticationToken(userId, null, authorities);
 
             // 요청의 상세 정보 설정
             authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
