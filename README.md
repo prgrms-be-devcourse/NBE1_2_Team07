@@ -155,19 +155,9 @@ Programmers DevCourse BE 1기 2차 7팀 프로젝트
 - Github
 - JetBrain Code With Me
 
-### 코딩 컨벤션
-
-[Git  Convention](https://www.notion.so/Git-Convention-bac0523312b046d6908f50d2d81fd3e8?pvs=21)
-
-[Code Convention](https://www.notion.so/Code-Convention-1b666e9e4ef04237b97004d0b79bae3b?pvs=21)
-
 ---
 
-# 9. 트러블 슈팅
-
-[트러블 슈팅](https://www.notion.so/65f3422e2062484eaf061aa8d867f28d?pvs=21)
-
-# 10. 추후 개발 예정
+# 9. 추후 개발 예정
 
   건우 - 이메일 인증을 링크를통해 인증하는 기능 개발
   
@@ -175,6 +165,6 @@ Programmers DevCourse BE 1기 2차 7팀 프로젝트
   
   아영 - 메일 전송 spring batch 사용
   
-  재중 - 회원 탈퇴, 구독 중인 키워드 표기, ~~패키지를 기반으로 MSA 구조~~ 
+  재중 - 회원 탈퇴, 구독 중인 키워드 표기
   
   철진 - 기술 블로그 데이터 관련 Spring Batch 사용
